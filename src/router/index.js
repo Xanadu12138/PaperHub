@@ -10,6 +10,7 @@ import PapersTable from '../components/tables/PapersTable'
 import LogoutBtn from '../components/navbar/LogoutBtn'
 import Btns from '../components/navbar/Btns'
 
+import Admin from '../views/Admin.vue'
 
 Vue.use(Router)
 
@@ -40,6 +41,12 @@ const routes = [
     components: {
       main: PapersTable,
       btn: LogoutBtn,
+    }
+  },
+  {
+    path: '/admin',
+    components: {
+      main: Admin,
     }
   }
 ]

@@ -37,7 +37,7 @@
                     <p class="modal-card-title">评论</p>
                 </header>
                 <section class="modal-card-body">
-
+                    
                 </section>
                 <footer class="modal-card-foot">
                     <button class="button" type="button" @click="isCommentModalActive=false">Close</button>
