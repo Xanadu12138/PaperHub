@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>testApp</title>
+</head>
+
+<style>
+    h1 {
+        width: 100%;
+    }
+
+    .Card {
+        min-width: 100px;
+        min-height: 100px;
+        border: 2px solid black;
+        margin: 1em;
+        padding: 1em;
+        border-radius: 5px;
+        float: left;
+    }
+
+    .stateMenu{
+        position:absolute;
+        right: 0;
+        top: 0;
+        min-width: 100px;
+        margin: 5px;
+        padding:5px 5px;
+        font-size: small;
+        border:2px solid black;
+        border-radius: 5px;
+    }
+
+    .form-group label,
+    small {
+        display: block;
+    }
+</style>
+
+<body>
+    <h1>测试</h1>
+    <a href="/testApp">TEST HOME</a>
+    <p>未说明的地方全为aaa或者aaa@qq.com，实现错误判断逻辑靠前端啦</p>
+    <p>csrf文档：<a
+            href="https://docs.djangoproject.com/en/3.1/ref/csrf/">https://docs.djangoproject.com/en/3.1/ref/csrf/</a>
+    </p>
+    <div class="stateMenu">
+        <b>当前状态</b>
+        {% if request.user.username %}
+            <p>登陆用户：{{ request.user.username }}</p>
+            <p>上次登陆：{{ request.user.last_login }}</p>
+        {% else %}
+            <p>登陆用户：未登陆</p>
+        {% endif %}
+        <p>是否激活：{{ request.user.is_active }}</p>
+        <p>用户组：{{ request.user.groups }}</p>
+    </div>
+    <div class="Card">
+        <h2>注册</h2>
+        <form action="signUp" method="POST">
+            <small>csrf随机标识码</small>
+            {% csrf_token %}
+            <div class="form-group"><label for="id_username">用户名</label><input type="text" name="username"
+                    maxlength="150" autofocus class="form-control" placeholder="用户名" value="aaa">
+            </div>
+            <div class="form-group"><label for="id_first_name">名字</label><input type="text" name="first_name"
+                    maxlength="150" class="form-control" placeholder="名字" value="aaa"></div>
+            <div class="form-group"><label for="id_last_name">姓氏</label><input type="text" name="last_name"
+                    maxlength="150" class="form-control" placeholder="姓氏" value="aaa"></div>
+            <div class="form-group"><label for="id_email">电子邮箱</label><input type="email" name="email"
+                    class="form-control" placeholder="电子邮箱" value="aaa@qq.com">
+            </div>
+            <div class="form-group"><label for="id_password1">密码</label><input type="password" name="password1"
+                    autocomplete="new-password" class="form-control" placeholder="密码" required id="id_password1"
+                    value="aaa">
+            </div>
+            <div class="form-group"><label for="id_password2">密码确认</label><input type="password" name="password2"
+                    autocomplete="new-password" class="form-control" placeholder="密码确认" required id="id_password2"
+                    value="aaa">
+            </div>
+            <button>Sign Up</button>
+        </form>
+    </div>
+    <div class="Card">
+        <h2>登陆</h2>
+        <form action="signIn" method="POST">
+            <small>csrf随机标识码</small>
+            {% csrf_token %}
+            <div class="form-group"><label for="id_username">用户名</label><input type="text" name="username"
+                    maxlength="150" autofocus class="form-control" placeholder="用户名" value="aaa">
+            </div>
+            <div class="form-group"><label for="id_password">密码</label><input type="password" name="password"
+                    class="form-control" placeholder="密码" value="aaa"></div>
+            <div class="form-group">
+                <div class="form-check"><input type="checkbox" name="remember_me" class="form-check-input"
+                        id="id_remember_me"><label class="form-check-label" for="id_remember_me">记住我</label></div>
+            </div>
+            <button>Sign In</button>
+        </form>
+    </div>
+    <div class="Card">
+        <h2>登出</h2>
+        <form action="signOut" method="POST">
+            <small>csrf随机标识码</small>
+            {% csrf_token %}
+            <br>
+            <button>Sign Out</button>
+        </form>
+    </div>
+    
+</body>
+
+</html>
