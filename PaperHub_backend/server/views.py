@@ -86,7 +86,7 @@ def signIn(request):
         finally:
             resp = {'code': code, 'detail': msg}
             return JsonResponse(resp)
-    return HttpResponse("ERROR")
+    
 
 @csrf_exempt
 def signOut(request):

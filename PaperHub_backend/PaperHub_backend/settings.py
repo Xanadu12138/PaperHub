@@ -25,7 +25,7 @@ SECRET_KEY = '62m6#$an0(bho50b387y9$#+16faa2-!q&rh1mhh(tcqs&za$i'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['127.0.0.1','localhost']
 
 
 # Application definition
@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 
+    # extentions
+    'corsheaders',
+
     'server',
 ]
 
@@ -49,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'PaperHub_backend.urls'
@@ -123,3 +127,10 @@ STATIC_URL = '/static/'
 
 # Custom config
 ENABLE_TESTAPP = True
+
+# CORS config
+CORS_ORIGIN_WHITELIST = (
+    'http://127.0.0.1:8080',
+)
+
+CORS_ALLOW_CREDENTIALS = True  # 允许携带cookie
