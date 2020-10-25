@@ -21,11 +21,14 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     # User
     path('user', views.TestPageView.as_view(), name='index'),
-    path('api/signUp', views.signUp),
-    path('api/signIn',views.signIn),
-    path('api/signOut',views.signOut),
-    path('api/updateUser',views.updateUser),
-    path('api/deleteUser',views.deleteUser),
+    path('signUp', views.signUp),
+    path('signIn',views.signIn),
+    path('signOut',views.signOut),
+    path('updateUser',views.updateUser),
+    path('deleteUser',views.deleteUser),
     # Category
-    
+    path('api/createCategory',views.createCategory),
+    path('api/deleteCategory',views.deleteCategory),
+    path('api/retrieveCategory',views.retrieveCategory),
+    path('api/updateCategory',views.updateCategory),
 ]
