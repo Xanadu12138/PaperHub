@@ -19,8 +19,13 @@ from server import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # User
     path('user', views.TestPageView.as_view(), name='index'),
-    path('signUp', views.signUp),
-    path('signIn',views.signIn),
-    path('signOut',views.signOut),
+    path('api/signUp', views.signUp),
+    path('api/signIn',views.signIn),
+    path('api/signOut',views.signOut),
+    path('api/updateUser',views.updateUser),
+    path('api/deleteUser',views.deleteUser),
+    # Category
+    
 ]

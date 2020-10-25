@@ -13,7 +13,7 @@ from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 
 # 
-@csrf_exempt
+
 def signUp(request):
     # 注册
     if request.method == 'POST':
@@ -46,7 +46,7 @@ def signUp(request):
         return JsonResponse(resp)
     return HttpResponse("ERROR")
 
-@csrf_exempt
+
 def signIn(request):
     # 登陆
     if request.method == 'POST':
@@ -88,7 +88,7 @@ def signIn(request):
             return JsonResponse(resp)
     
 
-@csrf_exempt
+
 def signOut(request):
     # 注销
     if request.method == 'POST':
@@ -106,6 +106,45 @@ def signOut(request):
         response.delete_cookie('username')
         return response
     return HttpResponse("ERROR")
+
+@csrf_exempt
+def updateUser(request):
+    if request.user.is_authenticated:
+        username = request.POST.get('userName')
+        password = request.POST.get('password')
+        user = request.user 
+        if not User.objects.filter(username=username):
+            user.username = username
+            user.set_password(password)
+            user.save()
+            msg = 'success'
+        else:
+            msg = 'error'
+            
+            
+    else:
+        redirect('index.html')
+
+    resp = {'msg': msg}
+    return JsonResponse(resp)
+
+
+@csrf_exempt
+def deleteUser(request):
+    if request.user.is_authenticated:
+        try:
+            User.objects.get(username=request.user.username).delete()
+            msg = 'success'
+        except Exception as e:
+            msg = 'error'
+            print(e)
+
+    else:
+        msg = 'error'
+    resp = {'msg': msg}
+    return JsonResponse(resp)
+
+# category
 
 
 # template
