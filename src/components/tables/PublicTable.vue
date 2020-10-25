@@ -17,14 +17,11 @@
               <b-button size="is-small" type="is-info" icon-right="apps"></b-button>
             </b-table-column>
 
-            <b-table-column label="查看评论" width="100" centered v-slot="props">
+            <b-table-column label="查看评论" width="100" centered>
               <b-button size="is-small" type="is-warning" icon-right="refresh"
-                        @click="queryComments(props.row.categoryID)"></b-button>
+                        @click="goComent"></b-button>
             </b-table-column>
              
-            <b-table-column label="添加评论" width="100" centered>
-              <b-button size="is-small" type="is-warning" icon-right="refresh"></b-button>
-            </b-table-column>
         </b-table>
         <!-- 评论区 -->
         <b-modal 
@@ -68,6 +65,9 @@ export default {
   methods: {
     queryComments(id) {
       this.isCommentModalActive = true
+    },
+    goComent (){
+      this.$router.push('/Comments')
     }
   },
   mounted () {

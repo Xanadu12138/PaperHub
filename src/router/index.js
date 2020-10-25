@@ -11,6 +11,7 @@ import LogoutBtn from '../components/navbar/LogoutBtn'
 import Btns from '../components/navbar/Btns'
 
 import Admin from '../views/Admin.vue'
+import Comments from '../views/Comments.vue'
 
 Vue.use(Router)
 
@@ -47,8 +48,14 @@ const routes = [
     path: '/admin',
     components: {
       main: Admin,
+    },
+  },
+  {
+    path: '/comments',
+    components: {
+      main: Comments,
     }
-  }
+  },
 ]
 
 export default new Router({
