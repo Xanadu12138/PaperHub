@@ -61,8 +61,8 @@ def signIn(request):
             if user is not None:
                 # 存在该用户
                 login(request, user)
-
-                msg = 'Login success!'
+                
+                msg = {'userID':user.get_username()}
                 code = 0
                 resp = {'code': code, 'detail': msg}
                 response = JsonResponse(resp)
