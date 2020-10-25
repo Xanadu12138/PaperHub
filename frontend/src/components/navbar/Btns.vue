@@ -109,7 +109,7 @@ export default {
       // console.log(this.userName, this.password)
       // const path = `http://www.xanadu.ml/signIn`
       const path = `http://127.0.0.1:8000/signIn`
-      this.$axios.post(path, {username: this.userName, password:this.password})
+      this.$axios.post(path, this.$qs.stringify({username: this.userName, password:this.password}))
       .then(response => {
         console.log(response)
       })
