@@ -49,21 +49,33 @@ export default {
   },
   methods: {
     enterCategory(id) {
-      this.$router.push('/papers')
+      // query携带路由
+      this.$router.push({path: '/papers',
+                         query: {id:id}})
     },
     goAndQueryComments(id){
-      this.$router.push('/Comments')
+      // query携带路由
+      this.$router.push({path: '/comments',
+                         query: {id:id}})
     }
   },
   mounted () {
-    for (let i = 0; i < this.categories.length; i++) {
-      const row = {'id': i + 1,
-             'categoryName': this.categories[i]['categoryName'],
-             'categoryID': this.categories[i]['categoryID'],
-             'isPublic': this.categories[i]['isPublic']}
-      // console.log(row)
-      this.tableData.push(row)
-    }
+      const path = 'http://localhost:8000/api/retrieveCategory?isPublic=True'
+      this.$axios.get(path).then(response => {
+        this.categories = response.data.msg
+        this.tableData = []
+        // categories[i] = {categoryID, categoryName, isPublic, userID}
+        for (let i = 0; i < this.categories.length; i++) {
+          // 视图中的数据
+          const row = {'id': i + 1,
+                'categoryName': this.categories[i]['categoryName'],
+                'categoryID': this.categories[i]['categoryID'],
+                'userID': this.categories[i]['userID'],}
+          this.tableData.push(row)
+        }
+      }).catch(err => {
+        console.log(err)
+      })
   }
 } 
 </script>

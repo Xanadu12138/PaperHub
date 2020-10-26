@@ -1,31 +1,24 @@
 <template>
   <section>
     <!-- 评论区 -->
-    <!-- <b-message type="is-info" has-icon icon="account" v-slot="props">
-      {{ props.row.content }}
-    </b-message>
-    <b-message type="is-info" has-icon icon="account">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id
-      fermentum quam. Proin sagittis, nibh id hendrerit imperdiet, elit sapien
-      laoreet elit
-    </b-message>
-    <b-message type="is-info" has-icon icon="account">
-      Lorem ipsum dolor sit amet, consectetur adipiscing elit. Fusce id
-      fermentum quam. Proin sagittis, nibh id hendrerit imperdiet, elit sapien
-      laoreet elit
-    </b-message> -->
     <b-table :data="tableData">
       <b-table-column
         field="original_title"
         label="序号"
         v-slot="props"
-        width="500"
+        width="100"
       >
-        {{ props.row.commentID }}
+        {{ props.row.id }}
       </b-table-column>
 
-      <b-table-column label="评论" width="1500" v-slot="props">
+      <b-table-column label="评论" width="1000" v-slot="props">
         {{ props.row.content }}
+      </b-table-column>
+      <b-table-column label="作者" v-slot="props">
+        {{ props.row.userID }}
+      </b-table-column>
+      <b-table-column label="时间" v-slot="props">
+        {{ props.row.date }}
       </b-table-column>
     </b-table>
 
@@ -51,11 +44,11 @@
             <p class="modal-card-title">新评论</p>
           </header>
           <section class="modal-card-body">
-            <b-field label="内容" :label-position="labelPosition">
+            <b-field label="内容">
               <b-input
                 maxlength="1000"
                 type="textarea"
-                v-model="userCommentinModal"
+                v-model="commentInModal"
                 required
               ></b-input>
             </b-field>
@@ -83,40 +76,52 @@ export default {
   components: {},
   data() {
     return {
+      curCategoryID: null,
       tableData: [],
-      comments: [
-        { commentID: "1", content: "123" },
-        { commentID: "2", content: "312" },
-        { commentID: "3", content: "123" },
-        { commentID: "4", content: "312" },
-        { commentID: "5", content: "123" },
-      ],
-      //   isCommentModalActive: false,
+      comments: [],
       isCreateModalActive: false,
-      userCommentinModal: "",
+      commentInModal: "",
     };
   },
   mounted() {
-    for (let i = 0; i < this.comments.length; i++) {
-      const row = {
-        // id: i + 1,
-        commentID: this.comments[i]["commentID"],
-        content: this.comments[i]["content"],
-      };
-      console.log(1, row);
-      this.tableData.push(row);
-    }
+    this.curCategoryID = this.$route.query.id
+    this.retrieveComment()
   },
   methods: {
+    retrieveComment() {
+      const path = 'http://localhost:8000/api/retrieveComment?categoryID=' +
+                    this.curCategoryID
+      this.$axios.get(path).then(response => {
+        this.categories = response.data.msg
+        this.tableData = []
+        // comments[i] = {commentID, content, userID, date}
+        for (let i = 0; i < this.comments.length; i++) {
+          const row = {
+            id: i + 1,
+            content: this.comments[i]["content"],
+            userID: this.comments[i]["userID"],
+            date: this.comments[i]["date"],
+          };
+          this.tableData.push(row);
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
     createComment() {
-      const row = {
-        commentID: this.tableData.length + 1,
-        content: this.userCommentinModal,
-      };
-      this.tableData.push(row);
-      this.userCommentinModal = "";
-      this.isCreateModalActive = false;
-      console.log(2, row);
+      const path = `http://localhost:8000/api/createCategory`
+      const params = this.$qs.stringify({
+                          content: this.commentInModal, 
+                          categoryID: this.curCategoryID})
+      this.$axios.post(path, params)
+      .then(response => {
+        // 更新视图数据
+        this.commentInModal = "";
+        this.isCreateModalActive = false;
+        this.retrieveComment()
+      }).catch(err => {
+        console.log(err)
+      })
     },
   },
 };
