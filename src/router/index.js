@@ -12,6 +12,7 @@ import Btns from '../components/navbar/Btns'
 
 import Admin from '../views/Admin.vue'
 import Comments from '../views/Comments.vue'
+import LoginAdmin from '../views/LoginAdmin.vue'
 
 Vue.use(Router)
 
@@ -54,6 +55,12 @@ const routes = [
     path: '/comments',
     components: {
       main: Comments,
+    }
+  },
+  {
+    path: '/loginadmin',
+    components: {
+      main: LoginAdmin,
     }
   },
 ]
