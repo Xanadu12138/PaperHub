@@ -92,7 +92,7 @@ export default {
       const path = 'http://localhost:8000/api/retrieveComment?categoryID=' +
                     this.curCategoryID
       this.$axios.get(path).then(response => {
-        this.categories = response.data.msg
+        this.comments = response.data.msg
         this.tableData = []
         // comments[i] = {commentID, content, userID, date}
         for (let i = 0; i < this.comments.length; i++) {
@@ -109,7 +109,7 @@ export default {
       })
     },
     createComment() {
-      const path = `http://localhost:8000/api/createCategory`
+      const path = `http://localhost:8000/api/createComment`
       const params = this.$qs.stringify({
                           content: this.commentInModal, 
                           categoryID: this.curCategoryID})

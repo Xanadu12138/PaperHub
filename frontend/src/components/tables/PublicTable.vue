@@ -60,7 +60,7 @@ export default {
     }
   },
   mounted () {
-      const path = 'http://localhost:8000/api/retrieveCategory?isPublic=True'
+      const path = 'http://localhost:8000/api/retrievePublicCategories'
       this.$axios.get(path).then(response => {
         this.categories = response.data.msg
         this.tableData = []

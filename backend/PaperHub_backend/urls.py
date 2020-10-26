@@ -30,6 +30,7 @@ urlpatterns = [
     path('api/createCategory',views.createCategory),
     path('api/deleteCategory',views.deleteCategory),
     path('api/retrieveCategory',views.retrieveCategory),
+    path('api/retrievePublicCategories',views.retrievePublicCategories),
     path('api/updateCategory',views.updateCategory),
 
     # paper
