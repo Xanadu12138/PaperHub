@@ -37,4 +37,7 @@ urlpatterns = [
     path('api/deletePaper',views.deletePaper),
     path('api/retrievePaper',views.retrievePaper),
     path('api/updatePaper',views.updatePaper),
+    # comment
+    path('api/createComment',views.createComment),
+    path('api/retrieveComment',views.retrieveComment),
 ]

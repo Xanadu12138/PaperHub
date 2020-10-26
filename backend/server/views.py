@@ -364,6 +364,48 @@ def updatePaper(request):
 
     resp = {'code':code, 'msg': msg}
     return JsonResponse(resp)
+
+# comment
+@csrf_exempt
+def createComment(request):
+    if request.user.is_authenticated:
+        user = request.user
+        content = request.POST.get('content')
+        categoryid = request.POST.get('categoryID')
+        category = get_object_or_404(Categorie,categoryID = categoryid)
+        current_comment = Comment(userName = user, content = content, categoryID = category)
+        current_comment.save()
+        msg = 'success'
+        code = 0
+    else:
+        msg = 'error'
+        code = 1
+    resp = {'code':code, 'msg':msg}
+    return JsonResponse(resp)
+
+@csrf_exempt
+def retrieveComment(request):
+    categoryid = request.GET.get('categoryID')
+    try:
+        category = get_object_or_404(Categorie, categoryID = categoryid)
+        comments = Comment.objects.filter(categoryID = category)
+        resp_list = []
+        for comment in comments:
+            resp_dict = {}
+            resp_dict['commentId'] = comment.commentId
+            resp_dict['userName'] = comment.userName.username
+            resp_dict['date'] = comment.date
+            resp_dict['categoryID'] = comment.categoryID.categoryID
+            resp_list.append(resp_dict)
+        msg = resp_list
+        code = 0
+    except Exception as e:
+        msg = 'error'
+        code = 1
+        print(e)
+    
+    resp = {'code':code, 'msg':msg}
+    return JsonResponse(resp)
 # template
 class TestPageView(TemplateView):
     if settings.ENABLE_TESTAPP == True:
