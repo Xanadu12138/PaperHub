@@ -213,7 +213,7 @@ def retrieveCategory(request):
                 resp_dict['categoryName'] = category.categoryName
                 resp_dict['isPublic'] = category.isPublic
                 resp_dict['userID'] = category.userId.username
-            resp_list.append(resp_dict)
+                resp_list.append(resp_dict)
         
         msg = resp_list
     except Exception as e:
@@ -221,6 +221,28 @@ def retrieveCategory(request):
         print(e)
 
     resp = {'msg': msg}
+    return JsonResponse(resp)
+
+@csrf_exempt
+def retrievePublicCategories(requset):
+    try:
+        categories = Categorie.objects.all()
+        resp_list = []
+        for category in categories:
+            resp_dict = {}
+            if category.isPublic == True:
+                resp_dict['categoryID'] = category.categoryID
+                resp_dict['categoryName'] = category.categoryName
+                resp_dict['isPublic'] = category.isPublic
+                resp_dict['userID'] = category.userId.username
+                resp_list.append(resp_dict)
+        
+        msg = resp_list
+    except Exception as e:
+        msg = 'error'
+        print(e)
+
+    resp = {'msg':msg}
     return JsonResponse(resp)
     
 @csrf_exempt
