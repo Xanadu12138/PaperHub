@@ -85,6 +85,10 @@ def signIn(request):
             msg = 'signIn error!'
         finally:
             resp = {'code': code, 'detail': msg}
+    else:
+        code = 403
+        msg = 'error'
+    resp = {'code':code,'detail':msg}
     return JsonResponse(resp)
     
 
@@ -396,6 +400,7 @@ def retrieveComment(request):
             resp_dict['commentID'] = comment.commentId
             resp_dict['userID'] = comment.userName.username
             resp_dict['date'] = comment.date
+            resp_dict['content'] = comment.content
             resp_dict['categoryID'] = comment.categoryID.categoryID
             resp_list.append(resp_dict)
         msg = resp_list
