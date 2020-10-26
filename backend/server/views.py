@@ -13,12 +13,12 @@ from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 
 # 
-
+@csrf_exempt
 def signUp(request):
     # 注册
     if request.method == 'POST':
         username = request.POST.get('username')
-        password = request.POST.get('password1')
+        password = request.POST.get('password')
 
         try:
 
@@ -46,7 +46,7 @@ def signUp(request):
         return JsonResponse(resp)
     return HttpResponse("ERROR")
 
-
+@csrf_exempt
 def signIn(request):
     # 登陆
     if request.method == 'POST':
@@ -85,7 +85,7 @@ def signIn(request):
             msg = 'signIn error!'
         finally:
             resp = {'code': code, 'detail': msg}
-            return JsonResponse(resp)
+    return JsonResponse(resp)
     
 
 
@@ -202,10 +202,9 @@ def retrieveCategory(request):
         user = get_object_or_404(User,username = userid)
         categories = Categorie.objects.filter(userId=user)
         resp_list = []
-        
         for category in categories:
             resp_dict = {}
-            if category.isPublic == True:
+            if category.isPublic == True or request.user.username == userid:
                 resp_dict['categoryID'] = category.categoryID
                 resp_dict['categoryName'] = category.categoryName
                 resp_dict['userId'] = category.userId.username
@@ -251,6 +250,93 @@ def updateCategory(request):
     resp = {'msg':msg}
     return JsonResponse(resp)
 
+# paper
+@csrf_exempt
+def createPaper(request):
+    if request.user.is_authenticated:
+        user = request.user
+        categoryId = request.POST.get('categoryID')
+        url = request.POST.get('url')
+        title = request.POST.get('title')
+        author = request.POST.get('author')
+        description = request.POST.get('description')
+        # Auth if 
+        try:
+            category = Categorie.objects.get(categoryID = categoryId)
+            print(category.userId == user)
+            if category.userId == user:
+                # Have authority to change data
+                current_paper = Paper(url = url, title = title, author = author, description = description, categoryID= category)
+                current_paper.save()
+                code = 0
+                msg = 'success'
+            else:
+                code = 1
+                msg = 'error'
+        except Exception as e:
+            code = 1
+            msg = 'error'
+            print(e)
+    else:
+        code = 1
+        msg = 'error'
+
+    resp = {'code':code, 'msg':msg}  
+    return JsonResponse(resp)
+
+@csrf_exempt
+def deletePaper(request):
+    if request.user.is_authenticated:
+        user = request.user
+        paperid = request.POST.get('paperID')
+        # Auth if
+        paper = get_object_or_404(Paper, paperId = paperid)
+        category = paper.categoryID
+        auser = category.userId
+        if user == auser:
+            paper.delete()
+            code = 0
+            msg ='success'
+        else:
+            code = 1
+            msg = 'error'
+    
+    else:
+        code = 1
+        msg = 'error'
+
+    resp = {'msg': msg}
+    return JsonResponse(resp)
+
+@csrf_exempt
+def retrievePaper(request):
+    categoryid = request.GET.get('categoryID')
+    try:
+        category = get_object_or_404(Categorie,categoryID = categoryid)
+        papers = Paper.objects.filter(categoryID = category)
+        resp_list = []
+        for paper in papers:
+            resp_dict = {}
+            resp_dict['paperId'] = paper.paperId
+            resp_dict['url'] = paper.url
+            resp_dict['title'] = paper.title
+            resp_dict['description'] = paper.description
+            resp_dict['author'] = paper.author
+            resp_list.append(resp_dict)
+        msg = resp_list
+        code = 0
+
+    except Exception as e:
+        msg = 'error'
+        code = 1
+        print(e)
+    
+    resp = {'code':code, 'msg':msg}
+    return JsonResponse(resp)
+
+@csrf_exempt
+def updatePaper(request):
+    pass
 # template
 class TestPageView(TemplateView):
     if settings.ENABLE_TESTAPP == True:

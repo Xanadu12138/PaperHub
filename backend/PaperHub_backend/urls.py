@@ -20,7 +20,7 @@ from server import views
 urlpatterns = [
     path('admin/', admin.site.urls),
     # User
-    path('user', views.TestPageView.as_view(), name='index'),
+    path('user/', views.TestPageView.as_view(), name='index'),
     path('signUp', views.signUp),
     path('signIn',views.signIn),
     path('signOut',views.signOut),
@@ -31,4 +31,9 @@ urlpatterns = [
     path('api/deleteCategory',views.deleteCategory),
     path('api/retrieveCategory',views.retrieveCategory),
     path('api/updateCategory',views.updateCategory),
+
+    # paper
+    path('api/createPaper',views.createPaper),
+    path('api/deletePaper',views.deletePaper),
+    path('api/retrievePaper',views.retrievePaper),
 ]
