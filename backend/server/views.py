@@ -336,7 +336,34 @@ def retrievePaper(request):
 
 @csrf_exempt
 def updatePaper(request):
-    pass
+    if request.user.is_authenticated:
+        user = request.user
+        paperid = request.POST.get('paperID')
+        url = request.POST.get('url')
+        title = request.POST.get('title')
+        author = request.POST.get('author')
+        description = request.POST.get('description')
+        # Auth if
+        paper = get_object_or_404(Paper, paperId = paperid)
+        category = paper.categoryID
+        auser = category.userId
+        if user == auser:
+            paper.url = url
+            paper.title = title
+            paper.author = author
+            paper.description = description
+            paper.save()
+            code = 0
+            msg ='success'
+        else:
+            code = 1
+            msg = 'error'
+    else:
+        code = 1
+        msg = 'error'
+
+    resp = {'code':code, 'msg': msg}
+    return JsonResponse(resp)
 # template
 class TestPageView(TemplateView):
     if settings.ENABLE_TESTAPP == True:

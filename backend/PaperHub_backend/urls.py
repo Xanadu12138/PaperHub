@@ -36,4 +36,5 @@ urlpatterns = [
     path('api/createPaper',views.createPaper),
     path('api/deletePaper',views.deletePaper),
     path('api/retrievePaper',views.retrievePaper),
+    path('api/updatePaper',views.updatePaper),
 ]
