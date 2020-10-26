@@ -191,7 +191,6 @@ export default {
           name = this.tableData[i]['categoryName']
         }
       }
-      console.log(status)
       this.updateCategory(id, name, status)
     },
     enterCategory(id) {

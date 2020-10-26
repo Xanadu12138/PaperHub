@@ -134,11 +134,10 @@ export default {
   },
   methods: {
     retrievePaper() {
-      const path = 'http://localhost:8000/api/retrieveCategory?categoryID=' +
+      const path = 'http://localhost:8000/api/retrievePaper?categoryID=' +
                     this.curCategoryID
       this.$axios.get(path).then(response => {
         this.papers = response.data.msg
-        console.log(response)
         this.tableData = []
         // papers[i] = {paperID, url, title, author, description}
         for (let i = 0; i < this.papers.length; i++) {
@@ -170,7 +169,7 @@ export default {
         this.authorInModal = '',
         this.descriptionInModal = '',
         this.isCreateModalActive = false
-        this.retrieveCategory()
+        this.retrievePaper()
       }).catch(err => {
         console.log(err)
       })
