@@ -114,7 +114,7 @@ export default {
       this.$axios.get(path).then(response => {
         this.categories = response.data.msg
         this.tableData = []
-        // categories[i] = {categoryID, categoryName, userId}
+        // categories[i] = {categoryID, categoryName, isPublic, userID}
         for (let i = 0; i < this.categories.length; i++) {
           // 视图中的数据
           const row = {'id': i + 1,

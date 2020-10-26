@@ -207,8 +207,8 @@ def retrieveCategory(request):
             if category.isPublic == True or request.user.username == userid:
                 resp_dict['categoryID'] = category.categoryID
                 resp_dict['categoryName'] = category.categoryName
-                resp_dict['userID'] = category.userId.username
                 resp_dict['isPublic'] = category.isPublic
+                resp_dict['userID'] = category.userId.username
             resp_list.append(resp_dict)
         
         msg = resp_list
@@ -318,7 +318,7 @@ def retrievePaper(request):
         resp_list = []
         for paper in papers:
             resp_dict = {}
-            resp_dict['paperId'] = paper.paperId
+            resp_dict['paperID'] = paper.paperId
             resp_dict['url'] = paper.url
             resp_dict['title'] = paper.title
             resp_dict['description'] = paper.description
@@ -393,8 +393,8 @@ def retrieveComment(request):
         resp_list = []
         for comment in comments:
             resp_dict = {}
-            resp_dict['commentId'] = comment.commentId
-            resp_dict['userName'] = comment.userName.username
+            resp_dict['commentID'] = comment.commentId
+            resp_dict['userID'] = comment.userName.username
             resp_dict['date'] = comment.date
             resp_dict['categoryID'] = comment.categoryID.categoryID
             resp_list.append(resp_dict)

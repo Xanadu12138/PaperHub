@@ -118,14 +118,7 @@ export default {
     return {
       curCategoryID: null,
       tableData: [],
-      papers: [
-            { 'paperID': 1, 'url': 'https://arxiv.org/pdf/2010.11731.pdf', 'title': 'aws', 'author': 'cl', 'description': '231sada'},
-            { 'paperID': 2, 'url': 'https://www.baidu.com', 'title': 'aws', 'author': 'cl', 'description': '231sada'},
-            { 'paperID': 3, 'url': 'https://www.baidu.com', 'title': 'aas', 'author': 'cl', 'description': '231sada'},
-            { 'paperID': 4, 'url': 'https://www.baidu.com', 'title': 'aw1231s', 'author': 'cl', 'description': '231sada'},
-            { 'paperID': 5, 'url': 'https://www.baidu.com', 'title': 'awasds', 'author': 'cl', 'description': '231sada'},
-            { 'paperID': 6, 'url': 'https://www.baidu.com', 'title': 'awss', 'author': 'cl', 'description': '231sada'}
-      ],
+      papers: [],
       isCreateModalActive: false,
       isUpdateModalActive: false,
       urlInModal: '',
@@ -187,7 +180,6 @@ export default {
       const params = this.$qs.stringify({paperID: id})
       this.$axios.post(path, params)
       .then(response => {
-        // 更新视图数据
         this.retrievePaper()
       }).catch(err => {
         console.log(err)
@@ -198,20 +190,24 @@ export default {
       this.isUpdateModalActive = true
     },
     updatePaper() {
-      // this.tableData.
-      for (let i = 0; i < this.tableData.length; i++) {
-        if (this.tableData[i]['paperID'] == this.paperSelected) {
-          this.tableData[i]['url'] = this.urlInModal
-          this.tableData[i]['title'] = this.titleInModal
-          this.tableData[i]['author'] = this.authorInModal
-          this.tableData[i]['description'] = this.descriptionInModal
-        }
-      }
-      this.urlInModal = '',
-      this.titleInModal = '',
-      this.authorInModal = '',
-      this.descriptionInModal = '',
-      this.isUpdateModalActive = false
+      const path = `http://localhost:8000/api/updatePaper`
+      const params = this.$qs.stringify({
+                          paperID: this.paperSelected, 
+                          url: this.urlInModal,
+                          title: this.titleInModal,
+                          author: this.authorInModal,
+                          description: this.descriptionInModal,})
+      this.$axios.post(path, params)
+      .then(response => {
+        this.retrievePaper()
+        this.urlInModal = '',
+        this.titleInModal = '',
+        this.authorInModal = '',
+        this.descriptionInModal = '',
+        this.isUpdateModalActive = false
+      }).catch(err => {
+        console.log(err)
+      })
     }
   }
 }

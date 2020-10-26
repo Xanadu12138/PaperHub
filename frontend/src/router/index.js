@@ -67,6 +67,7 @@ const routes = [
     path: '/comments',
     components: {
       main: Comments,
+      btn: LogoutBtn,
     },
     meta: {
       requireAuth: true,
