@@ -6,9 +6,11 @@ import 'buefy/dist/buefy.css'
 import Vue from 'vue'
 import App from './App'
 import router from './router'
+import store from './store'
 
 import axios from 'axios'
 import qs from 'qs'
+axios.defaults.withCredentials = true // 允许携带cookies
 Vue.prototype.$axios = axios
 Vue.prototype.$qs = qs
 
@@ -20,6 +22,7 @@ Vue.config.productionTip = false
 new Vue({
   el: '#app',
   router,
+  store,
   components: { App },
   template: '<App/>'
 })

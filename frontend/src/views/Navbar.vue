@@ -12,8 +12,6 @@
       <b-navbar-item @click="goPublic">
         公共论文
       </b-navbar-item>
-      <!--        labs selection dropdown in details-->
-      <router-view name="dropdown"></router-view>
     </template>
     <template slot="end">
       <b-navbar-item tag="div">
@@ -24,20 +22,18 @@
 </template>
 
 <script>
-// import Info from '../components/navbar/Info'
 
 
 export default {
   name: 'Navbar',
   components: {
-    // info: Info
   },
   methods: {
     goHome () {
-      this.$router.push('/home')
+      this.$router.push('/home').catch(()=>{})
     },
     goPublic () {
-      this.$router.push('/public')
+      this.$router.push('/public').catch(()=>{})
     }
   }
 }

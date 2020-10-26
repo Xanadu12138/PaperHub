@@ -5,13 +5,12 @@
 CREATE DATABASE DBPH CHARACTER SET gbk COLLATE gbk_chinese_ci;
 -- 表users
 CREATE TABLE users (
-      userID INTEGER PRIMARY KEY AUTO_INCREMENT,
-      userName CHAR(25) NOT NULL,
+      userID CHAR(10) PRIMARY KEY NOT NULL,
       password CHAR(25) NOT NULL
 );
 -- 表admin
 CREATE TABLE admin (
-      adminID INTEGER PRIMARY KEY,
+      adminID CHAR(10) PRIMARY KEY NOT NULL,
       password CHAR(25) NOT NULL
 );
 -- 表categories
@@ -52,9 +51,9 @@ CREATE TABLE comments (
 
 ## SQL
 
-| 序号 | SQL                                                | 备注           |
-| ---- | -------------------------------------------------- | -------------- |
-| 1    | `select password from admin where adminID=adminID` | 对密码逻辑验证 |
+| 序号 | SQL                                                 | 备注           |
+| ---- | --------------------------------------------------- | -------------- |
+| 1    | `select password from admin where adminID=adminID;` | 对密码逻辑验证 |
 
 # 用户相关
 
@@ -69,12 +68,12 @@ CREATE TABLE comments (
 
 ## SQL
 
-| 序号 | SQL  | 备注 |
-| ---- | ---- | ---- |
-| 2    |      |      |
-| 3    |      |      |
-| 4    |      |      |
-| 5    |      |      |
+| 序号 | SQL                                                | 备注 |
+| ---- | -------------------------------------------------- | ---- |
+| 2    | `select password from user where adminID=adminID;` |      |
+| 3    |                                                    |      |
+| 4    |                                                    |      |
+| 5    |                                                    |      |
 
 # 分类相关
 

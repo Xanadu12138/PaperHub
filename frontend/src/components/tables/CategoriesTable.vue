@@ -81,7 +81,7 @@
           </section>
           <footer class="modal-card-foot">
             <b-button class="button" type="button" @click="isModalActive=false">关闭</b-button>
-            <b-button class="button is-primary" @click="updateCategory">修改</b-button>
+            <b-button class="button is-primary" @click="changeName">修改</b-button>
           </footer>
          </div>
         </form>
@@ -97,13 +97,7 @@ export default {
   data () {
     return {
       tableData: [],
-      categories: [
-            { 'categoryID': 1, 'categoryName': 'c1', 'userID': 1, 'isPublic': false},
-            { 'categoryID': 2, 'categoryName': 'c2', 'userID': 1, 'isPublic': false},
-            { 'categoryID': 3, 'categoryName': 'c3', 'userID': 1, 'isPublic': true},
-            { 'categoryID': 4, 'categoryName': 'c4', 'userID': 1, 'isPublic': false},
-            { 'categoryID': 5, 'categoryName': 'c5', 'userID': 1, 'isPublic': false}
-      ],
+      categories: [],
       isCreateModalActive: false,
       isUpdateModalActive: false,
       categoryNameInModal: '',
@@ -111,93 +105,103 @@ export default {
     }
   },
   mounted () {
-    for (let i = 0; i < this.categories.length; i++) {
-      const row = {'id': i + 1,
-             'categoryName': this.categories[i]['categoryName'],
-             'isPublic': this.categories[i]['isPublic'],
-             'categoryID': this.categories[i]['categoryID']}
-      // console.log(row)
-      this.tableData.push(row)
-    }
+    this.retrieveCategory()
   },
   methods: {
-    enterCategory(id) {
-      this.$router.push('/papers')
+    retrieveCategory() {
+      const path = 'http://localhost:8000/api/retrieveCategory?userID=' +
+                    this.$store.state.userInfo.userID
+      this.$axios.get(path).then(response => {
+        this.categories = response.data.msg
+        this.tableData = []
+        // categories[i] = {categoryID, categoryName, userId}
+        for (let i = 0; i < this.categories.length; i++) {
+          // 视图中的数据
+          const row = {'id': i + 1,
+                'categoryName': this.categories[i]['categoryName'],
+                'isPublic': this.categories[i]['isPublic'],
+                'categoryID': this.categories[i]['categoryID']}
+          this.tableData.push(row)
+          // console.log(row)
+        }
+      }).catch(err => {
+        console.log(err)
+      })
     },
     createCategory(name) {
-      // axios
-      const row = { 'id': this.tableData.length + 1, 
-                    'categoryName': this.categoryNameInModal, 'isPublic': false,
-                    'categoryID': 6}
-      this.tableData.push(row)
-      this.categoryNameInModal = ''
-      this.isCreateModalActive = false
+      const path = `http://localhost:8000/api/createCategory`
+      const params = this.$qs.stringify({
+                          categoryName: this.categoryNameInModal, 
+                          isPublic: "False"})
+      this.$axios.post(path, params)
+      .then(response => {
+        // 更新视图数据
+        this.categoryNameInModal = ''
+        this.isCreateModalActive = false
+        this.retrieveCategory()
+      }).catch(err => {
+        console.log(err)
+      })
     },
     deleteCategory(id) {
-      // 过滤/删除对应元素
-      this.tableData = this.tableData.filter(row => row['categoryID'] != id)
-      // 更新序号
-      for (let i = 0; i < this.tableData.length; i++) {
-        // 数组地址不变，强制刷新view内容: vue.$set
-        // this.$set(this.tableData[i], 'id', i + 1)
-        this.tableData[i]['id'] = i + 1
-      }
+      const path = `http://localhost:8000/api/deleteCategory`
+      const params = this.$qs.stringify({categoryID: id})
+      this.$axios.post(path, params)
+      .then(response => {
+        // 更新视图数据
+        this.retrieveCategory()
+      }).catch(err => {
+        console.log(err)
+      })
+    },
+    updateCategory(id, name, status) {
+      const path = `http://localhost:8000/api/updateCategory`
+      const params = this.$qs.stringify({
+                          categoryID: id,
+                          categoryName: name,
+                          isPublic: status})
+      this.$axios.post(path, params)
+      .then(response => {
+        // 更新视图数据
+        this.retrieveCategory()
+      }).catch(err => {
+        console.log(err)
+      })
     },
     selectCategory(id) {
       this.categorySelected = id
       this.isUpdateModalActive = true
     },
-    updateCategory() {
-      // this.tableData.
+    changeName() {
+      let status = "False"
       for (let i = 0; i < this.tableData.length; i++) {
         if (this.tableData[i]['categoryID'] == this.categorySelected)
-          this.tableData[i]['categoryName'] = this.categoryNameInModal
+          status = this.tableData[i]['isPublic'] ? "True" : "False"
       }
+      this.updateCategory(this.categorySelected, this.categoryNameInModal, status)
       this.categoryNameInModal = ''
       this.isUpdateModalActive = false
     },
     changeStatus(id) {
-      // axios
-    }
+      let status = "False"
+      let name = ''
+      for (let i = 0; i < this.tableData.length; i++) {
+        if (this.tableData[i]['categoryID'] == id) {
+          status = this.tableData[i]['isPublic'] ? "True" : "False"
+          name = this.tableData[i]['categoryName']
+        }
+      }
+      console.log(status)
+      this.updateCategory(id, name, status)
+    },
+    enterCategory(id) {
+      // query携带路由
+      this.$router.push({path: '/papers',
+                         query: {id:id}})
+    },
   }
 }
-// const path = `http://localhost:5000/api/random`
-//     axios.get(path)
-//     .then(response => {
-//       this.randomNumber = response.data.randomNumber
-//     })
-//     .catch(err => {
-//       console.log(err)
-//     })
-    // const db = firebase.firestore()
-    // const section = this.$store.state.userInfo.section
-    // // admin privilege
-    // if (section === 0) {
-    //   db.collection('students')
-    //     .get()
-    //     .then(query => {
-    //       query.forEach(doc => {
-    //         this.students.push({
-    //           name: doc.id,
-    //           info: doc.data()
-    //         })
-    //       })
-    //     })
-    //     .catch(err => console.log('Error getting documents:', err))
-    // } else {
-    //   db.collection('students')
-    //     .where('section', '==', section)
-    //     .get()
-    //     .then(query => {
-    //       query.forEach(doc => {
-    //         this.students.push({
-    //           name: doc.id,
-    //           info: doc.data()
-    //         })
-    //       })
-    //     })
-    //     .catch(err => console.log('Error getting documents:', err))
-    // }  
+    
 </script>
 
 <style scoped>

@@ -95,25 +95,52 @@ export default {
   },
   methods: {
     register() {
-      console.log(this.userName, this.password)
-      const path = `10.120.167.129:5000/signIn`
-      this.$axios.post(path, {username: 'aaa', password:'aaa'})
+      const path = `http://localhost:8000/signUp`
+      const params = this.$qs.stringify({
+                          username: this.userName, 
+                          password:this.password})
+      this.$axios.post(path, params)
       .then(response => {
-        console.log(response)
+        if (response.data.code == 0) {
+          alert('注册成功')
+          this.isRegisterModalActive = false
+          // 清空输入
+          this.userName = ''
+          this.password = ''
+        } else
+          alert('注册失败')
       })
       .catch(err => {
+        alert('注册异常')
         console.log(err)
       })
     },
     login () {
-      // console.log(this.userName, this.password)
-      // const path = `http://www.xanadu.ml/signIn`
-      const path = `http://127.0.0.1:8000/signIn`
-      this.$axios.post(path, this.$qs.stringify({username: this.userName, password:this.password}))
+      if (this.$store.state.userInfo.userStatus == true) {
+        alert('已有用户登录')
+        return
+      }
+      const path = `http://localhost:8000/signIn`
+      const params = this.$qs.stringify({
+                          username: this.userName, 
+                          password: this.password})
+      this.$axios.post(path, params)
       .then(response => {
-        console.log(response)
+        // console.log(response)
+        if (response.data.code == 0) {
+          this.isRegisterModalActive = false
+          const userInfo = { userStatus: true, userID: this.userName}
+          this.$store.commit('setUserInfo', userInfo)
+          this.$router.push('/home')
+          // console.log(this.$store.state.userInfo)
+          // 清空输入
+          this.userName = ''
+          this.password = ''
+        } else
+          alert('登录失败')
       })
       .catch(err => {
+        alert('登录异常')
         console.log(err)
       })
     }

@@ -1,9 +1,9 @@
 <template>
   <div>
-    <!-- <b-tag type="is-large">{{$store.state.userInfo.name}}</b-tag> -->
-    <!-- <button class="button is-primary" @click="logout">
-      Log out
-    </button> -->
+    <b-tag type="is-large is-primary">{{$store.state.userInfo.userID}}</b-tag>
+    <button class="button" @click="logout">
+      注 销
+    </button>
   </div>
 </template>
 
@@ -12,15 +12,11 @@
 export default {
   name: 'LogoutBtn',
   methods: {
-    // logout () {
-    //   // 不能用function(), 会导致this === null
-    //   firebase.auth().signOut().then(() => {
-    //     this.$router.push('/')
-    //     this.$store.commit('clearUserInfo')
-    //   }).catch(function (error) {
-    //     console.log(error)
-    //   })
-    // }
+    logout () {
+      this.$router.push('/')
+      this.$store.commit('clearUserInfo')
+      document.cookie = ""
+    }
   }
 }
 </script>

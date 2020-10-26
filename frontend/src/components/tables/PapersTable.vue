@@ -116,6 +116,7 @@ export default {
   },
   data () {
     return {
+      curCategoryID: null,
       tableData: [],
       papers: [
             { 'paperID': 1, 'url': 'https://arxiv.org/pdf/2010.11731.pdf', 'title': 'aws', 'author': 'cl', 'description': '231sada'},
@@ -135,40 +136,62 @@ export default {
     }
   },
   mounted () {
-    for (let i = 0; i < this.papers.length; i++) {
-      const row = {'id': i + 1,
-             'url': this.papers[i]['url'],
-             'title': this.papers[i]['title'],
-             'author': this.papers[i]['author'],
-             'description': this.papers[i]['description'],
-             'paperID': this.papers[i]['paperID']}
-      // console.log(row)
-      this.tableData.push(row)
-    }
+    this.curCategoryID = this.$route.query.id
+    this.retrievePaper()
   },
   methods: {
+    retrievePaper() {
+      const path = 'http://localhost:8000/api/retrieveCategory?categoryID=' +
+                    this.curCategoryID
+      this.$axios.get(path).then(response => {
+        this.papers = response.data.msg
+        console.log(response)
+        this.tableData = []
+        // papers[i] = {paperID, url, title, author, description}
+        for (let i = 0; i < this.papers.length; i++) {
+          const row = {'id': i + 1,
+                'url': this.papers[i]['url'],
+                'title': this.papers[i]['title'],
+                'author': this.papers[i]['author'],
+                'description': this.papers[i]['description'],
+                'paperID': this.papers[i]['paperID']}
+          this.tableData.push(row)
+        }
+      }).catch(err => {
+        console.log(err)
+      })
+    },
     createPaper(name) {
-      // axios
-      const row = { 'id': this.tableData.length + 1, 
-                    'url': this.urlInModal,
-                    'title': this.titleInModal,
-                    'author': this.authorInModal,
-                    'description': this.descriptionInModal,
-                    'paperID': 100}
-      this.tableData.push(row)
-      this.urlInModal = '',
-      this.titleInModal = '',
-      this.authorInModal = '',
-      this.descriptionInModal = '',
-      this.isCreateModalActive = false
+      const path = `http://localhost:8000/api/createPaper`
+      const params = this.$qs.stringify({
+                          categoryID: this.curCategoryID, 
+                          url: this.urlInModal,
+                          title: this.titleInModal,
+                          author: this.authorInModal,
+                          description: this.descriptionInModal,})
+      this.$axios.post(path, params)
+      .then(response => {
+        // 更新视图数据
+        this.urlInModal = '',
+        this.titleInModal = '',
+        this.authorInModal = '',
+        this.descriptionInModal = '',
+        this.isCreateModalActive = false
+        this.retrieveCategory()
+      }).catch(err => {
+        console.log(err)
+      })
     },
     deletePaper(id) {
-      // 过滤/删除对应元素
-      this.tableData = this.tableData.filter(row => row['paperID'] != id)
-      // 更新序号
-      for (let i = 0; i < this.tableData.length; i++) {
-        this.tableData[i]['id'] = i + 1
-      }
+      const path = `http://localhost:8000/api/deletePaper`
+      const params = this.$qs.stringify({paperID: id})
+      this.$axios.post(path, params)
+      .then(response => {
+        // 更新视图数据
+        this.retrievePaper()
+      }).catch(err => {
+        console.log(err)
+      })
     },
     selectPaper(id) {
       this.paperSelected = id
@@ -189,9 +212,6 @@ export default {
       this.authorInModal = '',
       this.descriptionInModal = '',
       this.isUpdateModalActive = false
-    },
-    changeStatus(id) {
-      // axios
     }
   }
 }
