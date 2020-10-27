@@ -11,7 +11,7 @@
 
             <b-table-column field="url" label="论文链接" centered numeric v-slot="props">
                 <div>
-                    <a :href="props.row.url">{{ props.row.url }}</a>
+                    <a :href="props.row.url" target="_blank">{{ props.row.url }}</a>
                 </div>
             </b-table-column>
 
