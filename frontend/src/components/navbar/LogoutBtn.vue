@@ -15,6 +15,12 @@ export default {
     logout () {
       this.$router.push('/')
       this.$store.commit('clearUserInfo')
+      const path = `http://localhost:8000/signOut`
+      this.$axios.post(path)
+      .then(response => {
+      }).catch(err => {
+        console.log(err)
+      })
       document.cookie = ""
     }
   }

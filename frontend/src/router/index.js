@@ -91,7 +91,7 @@ const routes = [
     },
     meta: {
       requireAuth: false,
-      requireAdmin: true
+      // requireAdmin: true
     }
   },
 ]

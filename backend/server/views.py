@@ -92,7 +92,7 @@ def signIn(request):
     return JsonResponse(resp)
     
 
-
+@csrf_exempt
 def signOut(request):
     # 注销
     if request.method == 'POST':

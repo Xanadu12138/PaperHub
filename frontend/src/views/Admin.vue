@@ -163,6 +163,9 @@ export default {
     }
   },
   methods: {
+    queryUser() {
+
+    },
     modifyInfo(id) {
       this.categorySelected = id;
       this.isUpdateModalActive = true;
