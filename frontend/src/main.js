@@ -11,6 +11,8 @@ import store from './store'
 import axios from 'axios'
 import qs from 'qs'
 axios.defaults.withCredentials = true // 允许携带cookies
+axios.defaults.baseURL='http://localhost:8000'
+// axios.defaults.baseURL='http://www.xanadu.ml:8000'
 Vue.prototype.$axios = axios
 Vue.prototype.$qs = qs
 

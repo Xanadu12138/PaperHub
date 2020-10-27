@@ -11,6 +11,7 @@ import LoginAdmin from '../views/LoginAdmin.vue'
 import CategoriesTable from '../components/tables/CategoriesTable'
 import PublicTable from '../components/tables/PublicTable'
 import PapersTable from '../components/tables/PapersTable'
+import PublicPaperTable from '../components/tables/PublicPaperTable'
 
 import LogoutBtn from '../components/navbar/LogoutBtn'
 import Btns from '../components/navbar/Btns'
@@ -56,6 +57,17 @@ const routes = [
     path: '/papers',
     components: {
       main: PapersTable,
+      btn: LogoutBtn,
+    },
+    meta: {
+      requireAuth: true,
+      requireAdmin: false
+    }
+  },
+  {
+    path: '/publicpapers',
+    components: {
+      main: PublicPaperTable,
       btn: LogoutBtn,
     },
     meta: {

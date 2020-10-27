@@ -15,7 +15,7 @@ export default {
     logout () {
       this.$router.push('/')
       this.$store.commit('clearUserInfo')
-      const path = `http://localhost:8000/signOut`
+      const path = `/signOut`
       this.$axios.post(path)
       .then(response => {
       }).catch(err => {

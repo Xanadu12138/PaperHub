@@ -14,7 +14,7 @@
             </b-table-column>
 
             <b-table-column field="userName" label="创建人" centered v-slot="props">
-                {{ props.row.userName }}
+                {{ props.row.userID }}
             </b-table-column>
 
              <b-table-column label="进入分类" width="100" centered v-slot="props">
@@ -38,19 +38,13 @@ export default {
   data () {
     return {
       tableData: [],
-      categories: [
-            { 'categoryName': 'c1', 'userName': 'a'},
-            { 'categoryName': 'c2', 'userName': 'b'},
-            { 'categoryName': 'c3', 'userName': 'c'},
-            { 'categoryName': 'c4', 'userName': 'd'},
-            { 'categoryName': 'c5', 'userName': 'e'}
-      ],
+      categories: [],
     }
   },
   methods: {
     enterCategory(id) {
       // query携带路由
-      this.$router.push({path: '/papers',
+      this.$router.push({path: '/publicpapers',
                          query: {id:id}})
     },
     goAndQueryComments(id){
@@ -60,7 +54,7 @@ export default {
     }
   },
   mounted () {
-      const path = 'http://localhost:8000/api/retrievePublicCategories'
+      const path = '/api/retrievePublicCategories'
       this.$axios.get(path).then(response => {
         this.categories = response.data.msg
         this.tableData = []

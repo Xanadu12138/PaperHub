@@ -95,7 +95,7 @@ export default {
   },
   methods: {
     register() {
-      const path = `http://localhost:8000/signUp`
+      const path = `/signUp`
       const params = this.$qs.stringify({
                           username: this.userName, 
                           password:this.password})
@@ -120,7 +120,7 @@ export default {
         alert('已有用户登录')
         return
       }
-      const path = `http://localhost:8000/signIn`
+      const path = `/signIn`
       const params = this.$qs.stringify({
                           username: this.userName, 
                           password: this.password})

@@ -38,7 +38,7 @@
             </b-table-column>
         </b-table>
         <div class="hero">
-          <button class="button field is-primary" @click="isCreateModalActive = true">
+          <button class="button field is-primary"  @click="isCreateModalActive = true">
               新增论文
           </button>
         </div>
@@ -134,7 +134,7 @@ export default {
   },
   methods: {
     retrievePaper() {
-      const path = 'http://localhost:8000/api/retrievePaper?categoryID=' +
+      const path = '/api/retrievePaper?categoryID=' +
                     this.curCategoryID
       this.$axios.get(path).then(response => {
         this.papers = response.data.msg
@@ -154,7 +154,7 @@ export default {
       })
     },
     createPaper(name) {
-      const path = `http://localhost:8000/api/createPaper`
+      const path = `/api/createPaper`
       const params = this.$qs.stringify({
                           categoryID: this.curCategoryID, 
                           url: this.urlInModal,
@@ -175,7 +175,7 @@ export default {
       })
     },
     deletePaper(id) {
-      const path = `http://localhost:8000/api/deletePaper`
+      const path = `/api/deletePaper`
       const params = this.$qs.stringify({paperID: id})
       this.$axios.post(path, params)
       .then(response => {
@@ -189,7 +189,7 @@ export default {
       this.isUpdateModalActive = true
     },
     updatePaper() {
-      const path = `http://localhost:8000/api/updatePaper`
+      const path = `/api/updatePaper`
       const params = this.$qs.stringify({
                           paperID: this.paperSelected, 
                           url: this.urlInModal,

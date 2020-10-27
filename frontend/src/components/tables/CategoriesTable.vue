@@ -109,7 +109,7 @@ export default {
   },
   methods: {
     retrieveCategory() {
-      const path = 'http://localhost:8000/api/retrieveCategory?userID=' +
+      const path = '/api/retrieveCategory?userID=' +
                     this.$store.state.userInfo.userID
       this.$axios.get(path).then(response => {
         this.categories = response.data.msg
@@ -129,7 +129,7 @@ export default {
       })
     },
     createCategory(name) {
-      const path = `http://localhost:8000/api/createCategory`
+      const path = `/api/createCategory`
       const params = this.$qs.stringify({
                           categoryName: this.categoryNameInModal, 
                           isPublic: "False"})
@@ -144,7 +144,7 @@ export default {
       })
     },
     deleteCategory(id) {
-      const path = `http://localhost:8000/api/deleteCategory`
+      const path = `/api/deleteCategory`
       const params = this.$qs.stringify({categoryID: id})
       this.$axios.post(path, params)
       .then(response => {
@@ -155,7 +155,7 @@ export default {
       })
     },
     updateCategory(id, name, status) {
-      const path = `http://localhost:8000/api/updateCategory`
+      const path = `/api/updateCategory`
       const params = this.$qs.stringify({
                           categoryID: id,
                           categoryName: name,

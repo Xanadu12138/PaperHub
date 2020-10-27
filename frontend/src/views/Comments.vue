@@ -89,7 +89,7 @@ export default {
   },
   methods: {
     retrieveComment() {
-      const path = 'http://localhost:8000/api/retrieveComment?categoryID=' +
+      const path = '/api/retrieveComment?categoryID=' +
                     this.curCategoryID
       this.$axios.get(path).then(response => {
         this.comments = response.data.msg
@@ -109,7 +109,7 @@ export default {
       })
     },
     createComment() {
-      const path = `http://localhost:8000/api/createComment`
+      const path = `/api/createComment`
       const params = this.$qs.stringify({
                           content: this.commentInModal, 
                           categoryID: this.curCategoryID})
