@@ -15,26 +15,29 @@ from django.views.decorators.csrf import csrf_exempt
 # 数据库驱动
 from django.db import connection
 
+# 管理员登录
 @csrf_exempt
 def adminLogin(request):
-    # 管理员登录
     if request.method == 'POST':
         adminID = request.POST.get('adminID')
         password = request.POST.get('password')
 
         try:
             cursor = connection.cursor()
-            cursor.execute("select password from admin where adminID='%s'" % (adminID))
+            cursor.execute("select password from admin where adminID='%s';" % (adminID))
 
             row = cursor.fetchone()
+            row = row[0]
 
-            if row != adminID:
+            cursor.close()
+
+            if row != password:
                 # 密码错误
                 msg = 'wrong admin password!'
                 code = 1001
                 resp = {'code': code, 'detail': msg}
             else:
-                # 
+                # 登录成功
                 code = 0
                 msg = 'admin login success'
                 resp = {'code': code, 'detail': msg}
@@ -48,38 +51,126 @@ def adminLogin(request):
         return JsonResponse(resp)
     return HttpResponse("ERROR")
 
+# 查找所有用户
 @csrf_exempt
-def signUp(request):
-    # 注册
+def retrieveUser(request):
+    if request.method == 'GET':
+        try:
+            cursor = connection.cursor()
+            cursor.execute("select * from users;")
+            rows = cursor.fetchall()
+            cursor.close()
+
+            msg = []
+            key = ['userID', 'password']
+            for row in rows:
+                msg.append(dict(zip(key,row)))
+
+            resp = {'msg': msg}
+
+        except Exception as e:
+            code = 400
+            msg = "adminLogin error"
+            resp = {'code': code, 'detail': msg}
+            print(e)
+
+        return JsonResponse(resp)
+    return HttpResponse("ERROR")
+
+# 更新指定用户
+@csrf_exempt
+def updateUser(request):
     if request.method == 'POST':
-        username = request.POST.get('userID')
+        userID = request.POST.get('userID')
         password = request.POST.get('password')
 
         try:
             cursor = connection.cursor()
-            cursor.execute("select password from admin where adminID=%s", (adminID))
+            cursor.execute("update users set password=%s where userID='%s';" % (password, userID))
+
+            cursor.close()
+
+            msg = userID + " update success"
+            resp = {'msg': msg}
+
+        except Exception as e:
+            code = 400
+            msg = "updateUser error"
+            resp = {'code': code, 'detail': msg}
+            print(e)
+
+        return JsonResponse(resp)
+    return HttpResponse("ERROR")
+
+# 删除指定用户
+@csrf_exempt
+def deleteUser(request):
+    if request.method == 'POST':
+        userID = request.POST.get('userID')
+
+        try:
+            cursor = connection.cursor()
+            cursor.execute("delete from users where userID='%s';" % (userID))
+
+            cursor.close()
+            msg = userID + " delete success"
+            resp = {'msg': msg}
+
+        except Exception as e:
+            code = 400
+            msg = "deleteUser error"
+            resp = {'code': code, 'detail': msg}
+            print(e)
+
+        return JsonResponse(resp)
+    return HttpResponse("ERROR")
+
+# 查找所有论文
+@csrf_exempt
+def retrieveAllPaper(request):
+    if request.method == 'GET':
+
+        try:
+            cursor = connection.cursor()
+            cursor.execute("select userID, categoryName, title, url \
+                            from categories \
+                            join papers on categories.categoryID=papers.categoryID;")
 
             rows = cursor.fetchall()
+            cursor.close()
 
-            # for row in rows:
-            #     print(row)
-            msg = rows
-            resp = {'code': 1001, 'detail': msg} 
+            msg = []
+            key = ['userID', 'categoryName', 'title', 'url']
+            for row in rows:
+                msg.append(dict(zip(key,row)))
+        
+            resp = {'msg': msg}
 
-            # if User.objects.filter(username=username):
-            #     # 判断用户是否已经注册存在
-            #     msg = 'user already exist!'
-            #     code = 1001
-            #     resp = {'code': code, 'detail': msg}
-            # else:
-            #     # 这是一个新用户
-            #     user = User.objects.create_user(
-            #         username=username, password=password)
-            #     # 这里返回一个元组
-            #     user.save()
-            #     code = 0
-            #     msg = 'create success'
-            #     resp = {'code': code, 'detail': msg}
+        except Exception as e:
+            code = 400
+            msg = "retrieveAllPaper error"
+            resp = {'code': code, 'detail': msg}
+            print(e)
+
+        return JsonResponse(resp)
+    return HttpResponse("ERROR")
+
+@csrf_exempt
+def signUp(request):
+    # 注册
+    if request.method == 'POST':
+        userID = request.POST.get('userID')
+        password = request.POST.get('password')
+
+        try:
+            cursor = connection.cursor()
+            cursor.execute("insert into users values ('%s', '%s');" % (userID, password))
+
+            cursor.close()
+
+            code = 0
+            msg = 'create success'
+            resp = {'code': code, 'detail': msg}
 
         except Exception as e:
             code = 400
@@ -90,147 +181,108 @@ def signUp(request):
         return JsonResponse(resp)
     return HttpResponse("ERROR")
 
+# 登陆
 @csrf_exempt
 def signIn(request):
-    # 登陆
     if request.method == 'POST':
-        username = request.POST.get('username')
+        userID = request.POST.get('userID')
         password = request.POST.get('password')
-        remember_me = request.POST.get('remember_me')
-        print("get SignIn Post", username, password, remember_me)
-
-        user = authenticate(username=username, password=password)
 
         try:
-            if user is not None:
-                # 存在该用户
-                login(request, user)
-                
-                msg = {'userID':user.get_username()}
-                code = 0
+            cursor = connection.cursor()
+            cursor.execute("select password from users where userID='%s';" % (userID))
+
+            row = cursor.fetchone()
+            row = row[0]
+
+            cursor.close()
+
+            if row != password:
+                # 密码错误
+                msg = 'wrong user password!'
+                code = 1001
                 resp = {'code': code, 'detail': msg}
-                response = JsonResponse(resp)
-
-                # 判断用户是否勾选记住登录
-                if remember_me == "on":
-                    # 设置session有效期为14天（默认）
-                    request.session.set_expiry(None)
-                else:
-                    # 如果没有记住，session在关闭浏览器后立刻失效
-                    request.session.set_expiry(0)
-                response.set_cookie(
-                    key='username', value=user.username, max_age=3600*24*14)
-                return response
             else:
-                code = 100
-                msg = 'email or password wrong!'
-        except:
-            code = 400
-            msg = 'signIn error!'
-        finally:
-            resp = {'code': code, 'detail': msg}
-    else:
-        code = 403
-        msg = 'error'
-    resp = {'code':code,'detail':msg}
-    return JsonResponse(resp)
-    
+                # 登录成功
+                code = 0
+                msg = 'user login success'
+                resp = {'code': code, 'detail': msg}
+                # 设置cookie
+                response = JsonResponse(resp)
+                response.set_cookie(
+                    key='userID', value=userID, max_age=3600*24*14)
+                return response
 
+        except Exception as e:
+            code = 400
+            msg = "signIn error"
+            resp = {'code': code, 'detail': msg}
+            print(e)
+
+        return JsonResponse(resp)
+    return HttpResponse("ERROR")
+    
+# 注销
 @csrf_exempt
 def signOut(request):
-    # 注销
     if request.method == 'POST':
-        print("get SignOut Post")
 
-        if request.user.is_authenticated:
-            logout(request)
-
-            msg = 'logout success!'
-        else:
-            msg = 'user is not login'
-
+        msg = 'logout success!'
         resp = {'code': 0, 'detail': msg}
+
         response = JsonResponse(resp)
-        response.delete_cookie('username')
+        response.delete_cookie('userID')
         return response
     return HttpResponse("ERROR")
 
+## 分类
 @csrf_exempt
-def updateUser(request):
-    if request.user.is_authenticated:
-        username = request.POST.get('userName')
-        password = request.POST.get('password')
-        user = request.user 
-        if not User.objects.filter(username=username):
-            user.username = username
-            user.set_password(password)
-            user.save()
-            msg = 'success'
-        else:
-            msg = 'error'
-            
-            
-    else:
-        redirect('index.html')
-
-    resp = {'msg': msg}
-    return JsonResponse(resp)
-
-
-@csrf_exempt
-def deleteUser(request):
-    if request.user.is_authenticated:
+def createCategory(request):
+    if request.method == 'POST':
+        userID = request.COOKIES['userID']
+        categoryName = request.POST.get('categoryName')
+        isPublic = request.POST.get('isPublic')
+        isPublic = 1 if isPublic == 'True' else 0 # 转化为TINYINT
         try:
-            User.objects.get(username=request.user.username).delete()
+            cursor = connection.cursor()
+            # 防重名
+            while True:
+                cursor.execute("select count(*) from categories where categoryName='%s';" % (categoryName))
+                counts = cursor.fetchone()[0]
+
+                if counts >= 1:
+                    categoryName += '({})'.format(counts)
+                if counts == 0:
+                    break
+            
+            # 插入新分类
+            cursor.execute("insert into categories values (null, '%s', %d, '%s');"
+                                % (categoryName, isPublic, userID))
+
+            cursor.close()
             msg = 'success'
         except Exception as e:
             msg = 'error'
             print(e)
-
-    else:
-        msg = 'error'
-    resp = {'msg': msg}
-    return JsonResponse(resp)
-
-# category
-@csrf_exempt
-def createCategory(request):
-    if request.user.is_authenticated:
-        user = request.user
-        categoryname = request.POST.get('categoryName')
-        isPublic = request.POST.get('isPublic')
-
-        counts = Categorie.objects.filter(categoryName=categoryname).count()
-
-        if counts >= 1:
-            categoryname += '({})'.format(counts)
-        
-        current_category = Categorie(categoryName=categoryname, isPublic= isPublic, userId= user)
-        current_category.save()
-        msg = 'success'
-
     else:
         msg = 'error'
         
     resp = {'msg': msg}
     return JsonResponse(resp)
+
 
 @csrf_exempt
 def deleteCategory(request):
-    if request.user.is_authenticated:
-        user = request.user
-        categoryId = request.POST.get('categoryID')
-
-        # auth if
+    if request.method == 'POST':
+        userID = request.COOKIES['userID']
+        categoryID = request.POST.get('categoryID')
         
         try:
-            category = Categorie.objects.get(categoryID=categoryId)
-            
-            if str(category.userId) == str(user.username):
-                category.delete()
-                msg = 'success'
-            else:
-                msg = 'error'
+            cursor = connection.cursor()
+            cursor.execute("delete from categories where categoryID=%s;" % (categoryID))
+
+            cursor.close()
+            msg = 'success'
 
         except Exception as e:
             msg = 'error'
@@ -245,71 +297,88 @@ def deleteCategory(request):
 
 @csrf_exempt
 def retrieveCategory(request):
-    try:
-        userid = request.GET.get('userID')
-        user = get_object_or_404(User,username = userid)
-        categories = Categorie.objects.filter(userId=user)
-        resp_list = []
-        for category in categories:
-            resp_dict = {}
-            if category.isPublic == True or request.user.username == userid:
-                resp_dict['categoryID'] = category.categoryID
-                resp_dict['categoryName'] = category.categoryName
-                resp_dict['isPublic'] = category.isPublic
-                resp_dict['userID'] = category.userId.username
-                resp_list.append(resp_dict)
-        
-        msg = resp_list
-    except Exception as e:
-        msg = 'error'
-        print(e)
+    if request.method == 'GET':
+        userID = request.COOKIES.get('userID')
+        print(userID)
+        try:
+            cursor = connection.cursor()
+            cursor.execute("select categoryID, categoryName, isPublic \
+                            from categories where userID='%s';" % (userID))
+            rows = cursor.fetchall()
+            rows = list(rows)
+            cursor.close()
+            # 处理isPublic数据
+            for row in rows:
+                rows[rows.index(row)] = list(row)
+            for row in rows:
+                row[2] = "True" if row[2] == 1 else "False"
+            # list2dict
+            msg = []
+            key = ['categoryID', 'categoryName', 'isPublic']
+            for row in rows:
+                msg.append(dict(zip(key,row)))
 
+        except Exception as e:
+            msg = 'error'
+            print(e)
+    else:
+        msg = 'error'
     resp = {'msg': msg}
     return JsonResponse(resp)
 
-@csrf_exempt
-def retrievePublicCategories(requset):
-    try:
-        categories = Categorie.objects.all()
-        resp_list = []
-        for category in categories:
-            resp_dict = {}
-            if category.isPublic == True:
-                resp_dict['categoryID'] = category.categoryID
-                resp_dict['categoryName'] = category.categoryName
-                resp_dict['isPublic'] = category.isPublic
-                resp_dict['userID'] = category.userId.username
-                resp_list.append(resp_dict)
-        
-        msg = resp_list
-    except Exception as e:
-        msg = 'error'
-        print(e)
 
+@csrf_exempt
+def retrievePublicCategory(request):
+    if request.method == 'GET':
+        try:
+            cursor = connection.cursor()
+            cursor.execute("select categoryName, categoryID, userID \
+                            from categories where isPublic=1;")
+            rows = cursor.fetchall()
+            rows = list(rows)
+            cursor.close()
+
+            # list2dict
+            msg = []
+            key = ['categoryName', 'categoryID', 'userID']
+            for row in rows:
+                msg.append(dict(zip(key,row)))
+            
+        except Exception as e:
+            msg = 'error'
+            print(e)
+    else:
+        msg = 'error'
     resp = {'msg':msg}
     return JsonResponse(resp)
     
+
 @csrf_exempt
 def updateCategory(request):
-    if request.user.is_authenticated:
-        categoryId = request.POST.get('categoryID')
-        categoryname = request.POST.get('categoryName')
+    if request.method == 'POST':
+        categoryID = request.POST.get('categoryID')
+        categoryName = request.POST.get('categoryName')
         isPublic = request.POST.get('isPublic')
-        print(categoryId)
+        isPublic = 1 if isPublic == 'True' else 0 # 转化为TINYINT
         try:
-            category = Categorie.objects.get(categoryID=categoryId)
-            if category.userId == request.user:
-                counts = Categorie.objects.filter(categoryName=categoryname,userId=request.user).count()
+            cursor = connection.cursor()
+            # 防重名
+            while True:
+                cursor.execute("select count(*) from categories where categoryName='%s';" % (categoryName))
+                counts = cursor.fetchone()[0]
 
                 if counts >= 1:
-                    categoryname += '({})'.format(counts)
-                
-                category.categoryName = categoryname
-                category.isPublic = isPublic
-                category.save()
-                msg = 'success'
-            else:
-                msg = 'error'
+                    categoryName += '({})'.format(counts)
+                if counts == 0:
+                    break
+            
+            # 更新分类
+            cursor.execute("update categories set categoryName='%s', isPublic=%d where \
+                            categoryID=%s;"
+                                % (categoryName, isPublic, categoryID))
+
+            cursor.close()
+            msg = 'success'
 
         except Exception as e:
             msg = 'error'
@@ -321,163 +390,165 @@ def updateCategory(request):
     resp = {'msg':msg}
     return JsonResponse(resp)
 
-# paper
+
+## paper
 @csrf_exempt
 def createPaper(request):
-    if request.user.is_authenticated:
-        user = request.user
-        categoryId = request.POST.get('categoryID')
+    if request.method == 'POST':
+        categoryID = request.POST.get('categoryID')
         url = request.POST.get('url')
         title = request.POST.get('title')
         author = request.POST.get('author')
         description = request.POST.get('description')
-        # Auth if 
         try:
-            category = Categorie.objects.get(categoryID = categoryId)
-            print(category.userId == user)
-            if category.userId == user:
-                # Have authority to change data
-                current_paper = Paper(url = url, title = title, author = author, description = description, categoryID= category)
-                current_paper.save()
-                code = 0
-                msg = 'success'
-            else:
-                code = 1
-                msg = 'error'
+            cursor = connection.cursor()
+            cursor.execute("insert into papers values (null, '%s', '%s', '%s', '%s', %s);"
+                                % (url, title, author, description, categoryID))
+
+            cursor.close()
+            msg = 'success'
         except Exception as e:
-            code = 1
             msg = 'error'
             print(e)
     else:
         code = 1
         msg = 'error'
 
-    resp = {'code':code, 'msg':msg}  
+    resp = {'msg':msg}  
     return JsonResponse(resp)
+
 
 @csrf_exempt
 def deletePaper(request):
-    if request.user.is_authenticated:
-        user = request.user
-        paperid = request.POST.get('paperID')
-        # Auth if
-        paper = get_object_or_404(Paper, paperId = paperid)
-        category = paper.categoryID
-        auser = category.userId
-        if user == auser:
-            paper.delete()
-            code = 0
-            msg ='success'
-        else:
-            code = 1
+    if request.method == 'POST':
+        paperID = request.POST.get('paperID')
+        try:
+            cursor = connection.cursor()
+            cursor.execute("delete from papers where paperID=%s;" % (paperID))
+
+            cursor.close()
+            msg = 'success'
+        except Exception as e:
             msg = 'error'
-    
+            print(e)
     else:
         code = 1
         msg = 'error'
 
-    resp = {'msg': msg}
+    resp = {'msg':msg}  
     return JsonResponse(resp)
+
 
 @csrf_exempt
 def retrievePaper(request):
-    categoryid = request.GET.get('categoryID')
-    try:
-        category = get_object_or_404(Categorie,categoryID = categoryid)
-        papers = Paper.objects.filter(categoryID = category)
-        resp_list = []
-        for paper in papers:
-            resp_dict = {}
-            resp_dict['paperID'] = paper.paperId
-            resp_dict['url'] = paper.url
-            resp_dict['title'] = paper.title
-            resp_dict['description'] = paper.description
-            resp_dict['author'] = paper.author
-            resp_list.append(resp_dict)
-        msg = resp_list
-        code = 0
-
-    except Exception as e:
-        msg = 'error'
-        code = 1
-        print(e)
-    
-    resp = {'code':code, 'msg':msg}
-    return JsonResponse(resp)
-
-@csrf_exempt
-def updatePaper(request):
-    if request.user.is_authenticated:
-        user = request.user
-        paperid = request.POST.get('paperID')
-        url = request.POST.get('url')
-        title = request.POST.get('title')
-        author = request.POST.get('author')
-        description = request.POST.get('description')
-        # Auth if
-        paper = get_object_or_404(Paper, paperId = paperid)
-        category = paper.categoryID
-        auser = category.userId
-        if user == auser:
-            paper.url = url
-            paper.title = title
-            paper.author = author
-            paper.description = description
-            paper.save()
-            code = 0
-            msg ='success'
-        else:
-            code = 1
+    if request.method == 'GET':
+        categoryID = request.GET.get('categoryID')
+        try:
+            print(categoryID)
+            cursor = connection.cursor()
+            cursor.execute("select paperID, url, title, author, description \
+                            from papers where categoryID=%s;" % (categoryID))
+            rows = cursor.fetchall()
+            rows = list(rows)
+            cursor.close()
+            # list2dict
+            msg = []
+            key = ['paperID', 'url', 'title', 'author', 'description']
+            for row in rows:
+                msg.append(dict(zip(key,row)))
+            
+        except Exception as e:
             msg = 'error'
+            print(e)
     else:
         code = 1
         msg = 'error'
 
-    resp = {'code':code, 'msg': msg}
+    resp = {'msg':msg}  
     return JsonResponse(resp)
+
+
+@csrf_exempt
+def updatePaper(request):
+    if request.method == 'POST':
+        paperID = request.POST.get('paperID')
+        url = request.POST.get('url')
+        title= request.POST.get('title')
+        author= request.POST.get('author')
+        description = request.POST.get('description')
+
+        try:
+            cursor = connection.cursor()
+            cursor.execute("update papers set url='%s', title='%s', author='%s', description='%s' \
+                            where paperID=%s;" % (url, title, author, description, paperID))
+
+            cursor.close()
+            msg = 'success'
+
+        except Exception as e:
+            msg = 'error'
+            print(e)
+
+    else:
+        msg = 'error'
+
+    resp = {'msg':msg}
+    return JsonResponse(resp)
+
 
 # comment
 @csrf_exempt
 def createComment(request):
-    if request.user.is_authenticated:
-        user = request.user
+    if request.method == 'POST':
+        userID = request.COOKIES['userID']
         content = request.POST.get('content')
-        categoryid = request.POST.get('categoryID')
-        category = get_object_or_404(Categorie,categoryID = categoryid)
-        current_comment = Comment(userName = user, content = content, categoryID = category)
-        current_comment.save()
-        msg = 'success'
-        code = 0
+        categoryID = request.POST.get('categoryID')
+     
+        try:
+            cursor = connection.cursor()
+            cursor.execute("insert into comments values (null, '%s', null, '%s', %s);"
+                                % (content, userID, categoryID))
+
+            cursor.close()
+            msg = 'success'
+        except Exception as e:
+            msg = 'error'
+            print(e)
     else:
-        msg = 'error'
         code = 1
-    resp = {'code':code, 'msg':msg}
+        msg = 'error'
+
+    resp = {'msg':msg}  
     return JsonResponse(resp)
 
 @csrf_exempt
 def retrieveComment(request):
-    categoryid = request.GET.get('categoryID')
-    try:
-        category = get_object_or_404(Categorie, categoryID = categoryid)
-        comments = Comment.objects.filter(categoryID = category)
-        resp_list = []
-        for comment in comments:
-            resp_dict = {}
-            resp_dict['commentID'] = comment.commentId
-            resp_dict['userID'] = comment.userName.username
-            resp_dict['date'] = comment.date
-            resp_dict['content'] = comment.content
-            resp_dict['categoryID'] = comment.categoryID.categoryID
-            resp_list.append(resp_dict)
-        msg = resp_list
-        code = 0
-    except Exception as e:
-        msg = 'error'
+    if request.method == 'GET':
+        categoryID = request.GET.get('categoryID')
+        try:
+            cursor = connection.cursor()
+            cursor.execute("select content, userID, date \
+                            from comments where categoryID=%s;" % (categoryID))
+            rows = cursor.fetchall()
+            rows = list(rows)
+            cursor.close()
+            # list2dict
+            msg = []
+            key = ['content', 'userID', 'date']
+            for row in rows:
+                msg.append(dict(zip(key,row)))
+            
+        except Exception as e:
+            msg = 'error'
+            print(e)
+    else:
         code = 1
-        print(e)
-    
-    resp = {'code':code, 'msg':msg}
+        msg = 'error'
+
+    resp = {'msg':msg}  
     return JsonResponse(resp)
+
+
 # template
 class TestPageView(TemplateView):
     if settings.ENABLE_TESTAPP == True:

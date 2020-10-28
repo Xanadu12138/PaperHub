@@ -122,7 +122,7 @@ export default {
       }
       const path = `/signIn`
       const params = this.$qs.stringify({
-                          username: this.userName, 
+                          userID: this.userName, 
                           password: this.password})
       this.$axios.post(path, params)
       .then(response => {

@@ -26,8 +26,10 @@ urlpatterns = [
 
     # admin page operation
     path('api/adminLogin', views.adminLogin),
-    path('updateUser',views.updateUser),
-    path('deleteUser',views.deleteUser),
+    path('api/retrieveUser', views.retrieveUser),
+    path('api/updateUser',views.updateUser),
+    path('api/deleteUser',views.deleteUser),
+    path('api/retrieveAllPaper',views.retrieveAllPaper),
 
     # User
     path('user/', views.TestPageView.as_view(), name='index'),
@@ -39,7 +41,7 @@ urlpatterns = [
     path('api/createCategory',views.createCategory),
     path('api/deleteCategory',views.deleteCategory),
     path('api/retrieveCategory',views.retrieveCategory),
-    path('api/retrievePublicCategories',views.retrievePublicCategories),
+    path('api/retrievePublicCategory',views.retrievePublicCategory),
     path('api/updateCategory',views.updateCategory),
 
     # paper

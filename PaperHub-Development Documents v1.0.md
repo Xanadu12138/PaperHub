@@ -3,6 +3,7 @@
 ```sql
 -- 数据库Database of PaperHub
 CREATE DATABASE DBPH CHARACTER SET gbk COLLATE gbk_chinese_ci;
+use DBPH;
 -- 表users
 CREATE TABLE users (
       userID CHAR(10) PRIMARY KEY NOT NULL,
@@ -18,7 +19,7 @@ CREATE TABLE categories (
       categoryID INTEGER PRIMARY KEY AUTO_INCREMENT,
       categoryName CHAR(100) NOT NULL,
       isPublic TINYINT NOT NULL,
-      userID INTEGER REFERENCES users(userID)
+      userID CHAR(10) REFERENCES users(userID)
 );
 -- 表papers
 CREATE TABLE papers (
@@ -27,15 +28,15 @@ CREATE TABLE papers (
       title CHAR(50) NOT NULL,
       author CHAR(50) NOT NULL,
       description VARCHAR(250) NOT NULL,
-      categoryID INTEGER REFERENCES categories(categoryID)
+      categoryID CHAR(10) REFERENCES categories(categoryID)
 );
 -- 表comments
 CREATE TABLE comments (
       commentID INTEGER PRIMARY KEY AUTO_INCREMENT,
-      userName CHAR(25) NOT NULL,
       content  VARCHAR(500) NOT NULL,
-      date DATE NOT NULL,
-      categoryID INTEGER REFERENCES categories(categoryID)
+      date TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
+      userID CHAR(10) REFERENCES users(userID),
+      categoryID CHAR(10) REFERENCES categories(categoryID)
 );
 ```
 
