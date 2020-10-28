@@ -15,6 +15,7 @@ import PublicPaperTable from '../components/tables/PublicPaperTable'
 
 import LogoutBtn from '../components/navbar/LogoutBtn'
 import Btns from '../components/navbar/Btns'
+import BackupBtn from '../components/navbar/BackupBtn'
 
 
 Vue.use(Router)
@@ -99,7 +100,8 @@ const routes = [
   {
     path: '/adminpage',
     components: {
-      main: Admin
+      main: Admin,
+      btn: BackupBtn
     },
     meta: {
       requireAuth: false,
