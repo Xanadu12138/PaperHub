@@ -12,7 +12,42 @@ from django.views.generic import TemplateView
 from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 
-# 
+# 数据库驱动
+from django.db import connection
+
+@csrf_exempt
+def adminLogin(request):
+    # 管理员登录
+    if request.method == 'POST':
+        adminID = request.POST.get('adminID')
+        password = request.POST.get('password')
+
+        try:
+            cursor = connection.cursor()
+            cursor.execute("select password from admin where adminID='%s'" % (adminID))
+
+            row = cursor.fetchone()
+
+            if row != adminID:
+                # 密码错误
+                msg = 'wrong admin password!'
+                code = 1001
+                resp = {'code': code, 'detail': msg}
+            else:
+                # 
+                code = 0
+                msg = 'admin login success'
+                resp = {'code': code, 'detail': msg}
+
+        except Exception as e:
+            code = 400
+            msg = "adminLogin error"
+            resp = {'code': code, 'detail': msg}
+            print(e)
+
+        return JsonResponse(resp)
+    return HttpResponse("ERROR")
+
 @csrf_exempt
 def signUp(request):
     # 注册
@@ -21,21 +56,30 @@ def signUp(request):
         password = request.POST.get('password')
 
         try:
+            cursor = connection.cursor()
+            cursor.execute("select password from admin where adminID=%s", (adminID))
 
-            if User.objects.filter(username=username):
-                # 判断用户是否已经注册存在
-                msg = 'user already exist!'
-                code = 1001
-                resp = {'code': code, 'detail': msg}
-            else:
-                # 这是一个新用户
-                user = User.objects.create_user(
-                    username=username, password=password)
-                # 这里返回一个元组
-                user.save()
-                code = 0
-                msg = 'create success'
-                resp = {'code': code, 'detail': msg}
+            rows = cursor.fetchall()
+
+            # for row in rows:
+            #     print(row)
+            msg = rows
+            resp = {'code': 1001, 'detail': msg} 
+
+            # if User.objects.filter(username=username):
+            #     # 判断用户是否已经注册存在
+            #     msg = 'user already exist!'
+            #     code = 1001
+            #     resp = {'code': code, 'detail': msg}
+            # else:
+            #     # 这是一个新用户
+            #     user = User.objects.create_user(
+            #         username=username, password=password)
+            #     # 这里返回一个元组
+            #     user.save()
+            #     code = 0
+            #     msg = 'create success'
+            #     resp = {'code': code, 'detail': msg}
 
         except Exception as e:
             code = 400

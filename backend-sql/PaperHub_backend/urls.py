@@ -23,13 +23,18 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name="index.html")),
 
     path('admin/', admin.site.urls),
+
+    # admin page operation
+    path('api/adminLogin', views.adminLogin),
+    path('updateUser',views.updateUser),
+    path('deleteUser',views.deleteUser),
+
     # User
     path('user/', views.TestPageView.as_view(), name='index'),
     path('signUp', views.signUp),
     path('signIn',views.signIn),
     path('signOut',views.signOut),
-    path('updateUser',views.updateUser),
-    path('deleteUser',views.deleteUser),
+
     # Category
     path('api/createCategory',views.createCategory),
     path('api/deleteCategory',views.deleteCategory),

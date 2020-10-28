@@ -44,7 +44,7 @@ export default {
   },
   methods: {
     login() {
-      const path = `/adminLogin`
+      const path = `/api/adminLogin`
       const params = this.$qs.stringify({
                           adminID: this.adminID, 
                           password: this.password})
