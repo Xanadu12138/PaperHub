@@ -53,7 +53,7 @@ export default {
         // console.log(response)
         if (response.data.code == 0) {
           const adminInfo = { adminStatus: true}
-          this.$store.commit('setAdminInfo', userInfo)
+          this.$store.commit('setAdminInfo', adminInfo)
           this.$router.push('/adminpage')
           // 清空输入
           this.adminID = ''

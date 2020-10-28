@@ -54,7 +54,7 @@ export default {
     }
   },
   mounted () {
-      const path = '/api/retrievePublicCategories'
+      const path = '/api/retrievePublicCategory'
       this.$axios.get(path).then(response => {
         this.categories = response.data.msg
         this.tableData = []

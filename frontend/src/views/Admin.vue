@@ -82,7 +82,7 @@
               {{ props.row.title }}
             </b-table-column>
             <b-table-column label="论文链接" width="180" centered v-slot="props">
-              {{ props.row.url }}
+              <a :href="props.row.url" target="_blank">{{ props.row.url }}</a>
             </b-table-column>
           </b-table>
         </section>

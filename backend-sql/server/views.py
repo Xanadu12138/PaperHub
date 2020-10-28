@@ -210,7 +210,7 @@ def signIn(request):
                 # 设置cookie
                 response = JsonResponse(resp)
                 response.set_cookie(
-                    key='userID', value=userID, max_age=3600*24*14)
+                        key='userID', value=userID, max_age=3600*24*14)
                 return response
 
         except Exception as e:
@@ -218,8 +218,7 @@ def signIn(request):
             msg = "signIn error"
             resp = {'code': code, 'detail': msg}
             print(e)
-
-        return JsonResponse(resp)
+            return JsonResponse(resp)
     return HttpResponse("ERROR")
     
 # 注销
@@ -239,7 +238,7 @@ def signOut(request):
 @csrf_exempt
 def createCategory(request):
     if request.method == 'POST':
-        userID = request.COOKIES['userID']
+        userID = request.COOKIES.get('userID')
         categoryName = request.POST.get('categoryName')
         isPublic = request.POST.get('isPublic')
         isPublic = 1 if isPublic == 'True' else 0 # 转化为TINYINT
@@ -274,7 +273,7 @@ def createCategory(request):
 @csrf_exempt
 def deleteCategory(request):
     if request.method == 'POST':
-        userID = request.COOKIES['userID']
+        userID = request.COOKIES.get('userID')
         categoryID = request.POST.get('categoryID')
         
         try:
@@ -299,7 +298,6 @@ def deleteCategory(request):
 def retrieveCategory(request):
     if request.method == 'GET':
         userID = request.COOKIES.get('userID')
-        print(userID)
         try:
             cursor = connection.cursor()
             cursor.execute("select categoryID, categoryName, isPublic \
@@ -311,7 +309,7 @@ def retrieveCategory(request):
             for row in rows:
                 rows[rows.index(row)] = list(row)
             for row in rows:
-                row[2] = "True" if row[2] == 1 else "False"
+                row[2] = "true" if row[2] == 1 else "false"
             # list2dict
             msg = []
             key = ['categoryID', 'categoryName', 'isPublic']
@@ -362,17 +360,7 @@ def updateCategory(request):
         isPublic = 1 if isPublic == 'True' else 0 # 转化为TINYINT
         try:
             cursor = connection.cursor()
-            # 防重名
-            while True:
-                cursor.execute("select count(*) from categories where categoryName='%s';" % (categoryName))
-                counts = cursor.fetchone()[0]
-
-                if counts >= 1:
-                    categoryName += '({})'.format(counts)
-                if counts == 0:
-                    break
             
-            # 更新分类
             cursor.execute("update categories set categoryName='%s', isPublic=%d where \
                             categoryID=%s;"
                                 % (categoryName, isPublic, categoryID))
@@ -500,13 +488,14 @@ def updatePaper(request):
 @csrf_exempt
 def createComment(request):
     if request.method == 'POST':
-        userID = request.COOKIES['userID']
+        userID = request.COOKIES.get('userID')
         content = request.POST.get('content')
         categoryID = request.POST.get('categoryID')
      
         try:
             cursor = connection.cursor()
-            cursor.execute("insert into comments values (null, '%s', null, '%s', %s);"
+            cursor.execute("insert into comments (content, userID, categoryID) \
+                                values ('%s', '%s', %s);"
                                 % (content, userID, categoryID))
 
             cursor.close()
