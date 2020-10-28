@@ -44,7 +44,27 @@ export default {
   },
   methods: {
     login() {
-      console.log(this.adminID, this.password)
+      const path = `/adminLogin`
+      const params = this.$qs.stringify({
+                          adminID: this.adminID, 
+                          password: this.password})
+      this.$axios.post(path, params)
+      .then(response => {
+        // console.log(response)
+        if (response.data.code == 0) {
+          const adminInfo = { adminStatus: true}
+          this.$store.commit('setAdminInfo', userInfo)
+          this.$router.push('/adminpage')
+          // 清空输入
+          this.adminID = ''
+          this.password = ''
+        } else
+          alert('登录失败')
+      })
+      .catch(err => {
+        alert('登录异常')
+        console.log(err)
+      })
     },
   },
 };
