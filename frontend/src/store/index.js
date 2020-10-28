@@ -23,6 +23,12 @@ export default new Vuex.Store({
     clearUserInfo (state) {
       state.userInfo.userStatus = false
       state.userInfo.userID = ''
+    },
+    setAdminInfo (state, adminInfo) {
+      state.adminInfo = adminInfo
+    },
+    clearAdminInfo (state) {
+      state.adminInfo.adminStatus = false
     }
   },
   actions: {
