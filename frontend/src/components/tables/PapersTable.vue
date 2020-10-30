@@ -1,5 +1,5 @@
 <template>
-    <!-- 个人分类界面 -->
+    <!-- 个人论文界面 -->
     <section class="is-fullheight-with-navbar">
         <b-table
             :data="tableData"
@@ -9,13 +9,13 @@
                 {{ props.row.id }}
             </b-table-column>
 
-            <b-table-column field="url" label="论文链接" centered numeric v-slot="props">
+            <b-table-column field="url" label="论文链接" width="400" centered numeric v-slot="props">
                 <div>
                     <a :href="props.row.url" target="_blank">{{ props.row.url }}</a>
                 </div>
             </b-table-column>
 
-            <b-table-column field="title" label="标题" centered v-slot="props">
+            <b-table-column field="title" label="标题" width="300" centered v-slot="props">
                 {{ props.row.title }}
             </b-table-column>
 
@@ -29,7 +29,7 @@
 
             <b-table-column label="编辑名称" width="100" centered v-slot="props">
               <b-button size="is-small" type="is-warning" icon-right="refresh"
-                        @click="selectPaper(props.row.paperID)"></b-button>
+                        @click="selectPaper(props.row.paperID, props.row)"></b-button>
             </b-table-column>
 
             <b-table-column label="删除" width="100" centered v-slot="props">
@@ -100,7 +100,7 @@
             </b-field>
           </section>
           <footer class="modal-card-foot">
-            <b-button class="button" type="button" @click="isUpdateModalActive=false">关闭</b-button>
+            <b-button class="button" type="button" @click="unselectPaper">关闭</b-button>
             <b-button class="button is-primary" @click="updatePaper">修改</b-button>
           </footer>
          </div>
@@ -184,9 +184,21 @@ export default {
         console.log(err)
       })
     },
-    selectPaper(id) {
+    selectPaper(id, paper) {
       this.paperSelected = id
       this.isUpdateModalActive = true
+      this.urlInModal = paper.url
+      this.titleInModal = paper.title
+      this.authorInModal = paper.author
+      this.descriptionInModal = paper.description
+    },
+    unselectPaper() {
+      this.paperSelected = null
+      this.isUpdateModalActive = false
+      this.urlInModal = ''
+      this.titleInModal = ''
+      this.authorInModal = ''
+      this.descriptionInModal = ''
     },
     updatePaper() {
       const path = `/api/updatePaper`

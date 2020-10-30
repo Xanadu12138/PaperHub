@@ -97,12 +97,29 @@ DATABASES = {
 	'default': {
    		'ENGINE': 'django.db.backends.mysql',   # 数据库引擎
     	'NAME': 'DBPH',                # 数据库的名字
-    	'USER': 'root',                         # 连接mysql数据库的用户名
-    	'PASSWORD': '20001020cl-DB',                   # 连接mysql数据库的密码
+    	'USER': 'userOfDBPH',                         # 连接mysql数据库的用户名
+    	'PASSWORD': '123',                   # 连接mysql数据库的密码
     	'HOST': '127.0.0.1',                    # mysql数据库的主机地址
     	'PORT': '3306',                         # mysql数据库的端口号
-	}
+	},
+    'admin': {
+        'ENGINE': 'django.db.backends.mysql',
+    	'NAME': 'DBPH',
+    	'USER': 'adminOfDBPH',
+    	'PASSWORD': '123',
+    	'HOST': '127.0.0.1',
+    	'PORT': '3306',
+    },
+    'admin_backup': {
+        'ENGINE': 'django.db.backends.mysql',
+    	'NAME': 'DBPH_backup',
+    	'USER': 'adminOfDBPH',
+    	'PASSWORD': '123',
+    	'HOST': '127.0.0.1',
+    	'PORT': '3306',
+    }
 }	
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

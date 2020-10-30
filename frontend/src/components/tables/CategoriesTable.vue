@@ -80,7 +80,7 @@
             </b-field>
           </section>
           <footer class="modal-card-foot">
-            <b-button class="button" type="button" @click="isModalActive=false">关闭</b-button>
+            <b-button class="button" type="button" @click="isUpdateModalActive=false">关闭</b-button>
             <b-button class="button is-primary" @click="changeName">修改</b-button>
           </footer>
          </div>

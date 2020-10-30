@@ -12,8 +12,11 @@ from django.views.generic import TemplateView
 from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 
-# 数据库驱动
-from django.db import connection
+# 数据库驱动,多对象使用connections
+from django.db import connection, connections
+# 终端操作
+import os
+import time
 
 # 管理员登录
 @csrf_exempt
@@ -25,10 +28,8 @@ def adminLogin(request):
         try:
             cursor = connection.cursor()
             cursor.execute("select password from admin where adminID='%s';" % (adminID))
-
             row = cursor.fetchone()
             row = row[0]
-
             cursor.close()
 
             if row != password:
@@ -85,8 +86,12 @@ def updateUser(request):
         password = request.POST.get('password')
 
         try:
-            cursor = connection.cursor()
+            cursor = connections['admin'].cursor()
+            cursor.execute("set session transaction isolation level serializable;")
+            cursor.execute("set @@autocommit=0;")
+            cursor.execute("start transaction;")
             cursor.execute("update users set password=%s where userID='%s';" % (password, userID))
+            cursor.execute("commit;")
 
             cursor.close()
 
@@ -109,8 +114,12 @@ def deleteUser(request):
         userID = request.POST.get('userID')
 
         try:
-            cursor = connection.cursor()
+            cursor = connections['admin'].cursor()
+            cursor.execute("set session transaction isolation level serializable;")
+            cursor.execute("set @@autocommit=0;")
+            cursor.execute("start transaction;")
             cursor.execute("delete from users where userID='%s';" % (userID))
+            cursor.execute("commit;")
 
             cursor.close()
             msg = userID + " delete success"
@@ -125,6 +134,7 @@ def deleteUser(request):
         return JsonResponse(resp)
     return HttpResponse("ERROR")
 
+
 # 查找所有论文
 @csrf_exempt
 def retrieveAllPaper(request):
@@ -132,7 +142,7 @@ def retrieveAllPaper(request):
 
         try:
             cursor = connection.cursor()
-            cursor.execute("select userID, categoryName, title, url \
+            cursor.execute("select userID, categoryName, title, url, paperID \
                             from categories \
                             join papers on categories.categoryID=papers.categoryID;")
 
@@ -140,7 +150,7 @@ def retrieveAllPaper(request):
             cursor.close()
 
             msg = []
-            key = ['userID', 'categoryName', 'title', 'url']
+            key = ['userID', 'categoryName', 'title', 'url', 'paperID']
             for row in rows:
                 msg.append(dict(zip(key,row)))
         
@@ -155,6 +165,38 @@ def retrieveAllPaper(request):
         return JsonResponse(resp)
     return HttpResponse("ERROR")
 
+
+# 查找所有评论
+@csrf_exempt
+def retrieveAllComment(request):
+    if request.method == 'GET':
+
+        try:
+            cursor = connection.cursor()
+            cursor.execute("select categoryName, content, comments.userID, date, commentID \
+                            from categories \
+                            join comments on categories.categoryID=comments.categoryID;")
+
+            rows = cursor.fetchall()
+            cursor.close()
+
+            msg = []
+            key = ['categoryName', 'content', 'userID', 'date', 'commentID']
+            for row in rows:
+                msg.append(dict(zip(key,row)))
+        
+            resp = {'msg': msg}
+
+        except Exception as e:
+            code = 400
+            msg = "retrieveAllPaper error"
+            resp = {'code': code, 'detail': msg}
+            print(e)
+
+        return JsonResponse(resp)
+    return HttpResponse("ERROR")
+
+
 @csrf_exempt
 def signUp(request):
     # 注册
@@ -165,7 +207,6 @@ def signUp(request):
         try:
             cursor = connection.cursor()
             cursor.execute("insert into users values ('%s', '%s');" % (userID, password))
-
             cursor.close()
 
             code = 0
@@ -432,7 +473,6 @@ def retrievePaper(request):
     if request.method == 'GET':
         categoryID = request.GET.get('categoryID')
         try:
-            print(categoryID)
             cursor = connection.cursor()
             cursor.execute("select paperID, url, title, author, description \
                             from papers where categoryID=%s;" % (categoryID))
@@ -537,6 +577,119 @@ def retrieveComment(request):
     resp = {'msg':msg}  
     return JsonResponse(resp)
 
+
+@csrf_exempt
+def deleteComment(request):
+    if request.method == 'POST':
+        commentID = request.POST.get('commentID')
+        try:
+            cursor = connection.cursor()
+            cursor.execute("delete from comments where commentID=%s;" % (commentID))
+
+            cursor.close()
+            msg = 'success'
+        except Exception as e:
+            msg = 'error'
+            print(e)
+    else:
+        code = 1
+        msg = 'error'
+
+    resp = {'msg':msg}  
+    return JsonResponse(resp)
+
+
+# 数据库备份
+@csrf_exempt
+def backupDB(request):
+    if request.method == 'POST':
+        try:
+            timeStr = time.strftime("%Y-%m-%d-%H:%M:%S", time.localtime())
+            path = "backup/"
+            fileName = path + timeStr + "backup_DBPH.sql"
+            command = "mysqldump -u'adminOfDBPH' -p123 --databases DBPH > " + fileName
+
+            # 记录 - 先记录，防止备份中的没有当前记录的数据
+            cursor = connections['admin_backup'].cursor()
+            # 序列化级别隔离
+            cursor.execute("set session transaction isolation level serializable;")
+            cursor.execute("set @@autocommit=0;")
+            cursor.execute("start transaction;")
+            cursor.execute("insert into backups (path) values ('%s');" % (fileName))
+            cursor.execute("commit;")
+
+            cursor.close()
+            # 系统调用做备份
+            os.system(command)
+
+            msg = 'success'
+        except Exception as e:
+            msg = 'error'
+            print(e)
+    else:
+        code = 1
+        msg = 'error'
+
+    resp = {'msg':msg}  
+    return JsonResponse(resp)
+
+@csrf_exempt
+def retrieveBackup(request):
+    if request.method == 'GET':
+        try:
+            cursor = connections['admin_backup'].cursor()
+            cursor.execute("set session transaction isolation level serializable;")
+            cursor.execute("set @@autocommit=0;")
+            cursor.execute("start transaction;")
+            cursor.execute("select backupID, date from backups;")
+            rows = cursor.fetchall()
+            cursor.execute("commit;")
+            cursor.close()
+            # list2dict
+            msg = []
+            key = ['backupID', 'date']
+            for row in rows:
+                msg.append(dict(zip(key,row)))
+
+        except Exception as e:
+            msg = 'error'
+            print(e)
+    else:
+        code = 1
+        msg = 'error'
+
+    resp = {'msg':msg}  
+    return JsonResponse(resp)
+
+@csrf_exempt
+def recover(request):
+    if request.method == 'POST':
+        backupID = request.POST.get('backupID')
+        try:
+            # 找到路径
+            cursor = connections['admin_backup'].cursor()
+            cursor.execute("set session transaction isolation level serializable;")
+            cursor.execute("set @@autocommit=0;")
+            cursor.execute("start transaction;")
+            cursor.execute("select path from backups where backupID=%s;" % (backupID))
+            fileName = cursor.fetchone()[0]
+            cursor.execute("commit;")
+
+            cursor.close()
+            # 恢复
+            command = "mysql -u'adminOfDBPH' -p123 DBPH < " + fileName
+            os.system(command)
+            msg = 'success'
+        except Exception as e:
+            msg = 'error'
+            print(e)
+    else:
+        msg = 'error'
+
+    resp = {'msg':msg}  
+    return JsonResponse(resp)
+    
+    
 
 # template
 class TestPageView(TemplateView):

@@ -3,6 +3,8 @@
 /frontend/dist/
 /backend/server/__pycache__
 /backend/server/migrations
+/backend-sql/backup
+/backend-sql/env
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

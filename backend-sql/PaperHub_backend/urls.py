@@ -30,6 +30,7 @@ urlpatterns = [
     path('api/updateUser',views.updateUser),
     path('api/deleteUser',views.deleteUser),
     path('api/retrieveAllPaper',views.retrieveAllPaper),
+    path('api/retrieveAllComment',views.retrieveAllComment),
 
     # User
     path('user/', views.TestPageView.as_view(), name='index'),
@@ -52,4 +53,10 @@ urlpatterns = [
     # comment
     path('api/createComment',views.createComment),
     path('api/retrieveComment',views.retrieveComment),
+    path('api/deleteComment',views.deleteComment),
+
+    # backups
+    path('api/backupDB',views.backupDB),
+    path('api/retrieveBackup',views.retrieveBackup),
+    path('api/recover',views.recover),
 ]

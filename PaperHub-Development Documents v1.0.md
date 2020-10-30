@@ -1,9 +1,14 @@
-# 数据库创建SQL
+# 数据库设计
 
 ```sql
 -- 数据库Database of PaperHub
 CREATE DATABASE DBPH CHARACTER SET gbk COLLATE gbk_chinese_ci;
 use DBPH;
+```
+
+## 表设计SQL
+
+```sql
 -- 表users
 CREATE TABLE users (
       userID CHAR(10) PRIMARY KEY NOT NULL,
@@ -19,25 +24,74 @@ CREATE TABLE categories (
       categoryID INTEGER PRIMARY KEY AUTO_INCREMENT,
       categoryName CHAR(100) NOT NULL,
       isPublic TINYINT NOT NULL,
-      userID CHAR(10) REFERENCES users(userID)
+      userID CHAR(10),
+      FOREIGN KEY(userID) REFERENCES users(userID) ON DELETE CASCADE
 );
 -- 表papers
 CREATE TABLE papers (
       paperID INTEGER PRIMARY KEY AUTO_INCREMENT,
       url CHAR(100) NOT NULL,
-      title CHAR(50) NOT NULL,
-      author CHAR(50) NOT NULL,
+      title VARCHAR(250) NOT NULL,
+      author CHAR(80) NOT NULL,
       description VARCHAR(250) NOT NULL,
-      categoryID CHAR(10) REFERENCES categories(categoryID)
+      categoryID INTEGER,
+      FOREIGN KEY(categoryID) REFERENCES categories(categoryID) ON DELETE CASCADE
 );
 -- 表comments
 CREATE TABLE comments (
       commentID INTEGER PRIMARY KEY AUTO_INCREMENT,
       content  VARCHAR(500) NOT NULL,
       date TIMESTAMP DEFAULT CURRENT_TIMESTAMP(),
-      userID CHAR(10) REFERENCES users(userID),
-      categoryID CHAR(10) REFERENCES categories(categoryID)
+      userID CHAR(10),
+      categoryID INTEGER,
+      FOREIGN KEY(userID) REFERENCES users(userID) ON DELETE CASCADE,
+      FOREIGN KEY(categoryID) REFERENCES categories(categoryID) ON DELETE CASCADE
 );
+
+-- 备份数据库
+CREATE DATABASE DBPH_backup;
+use DBPH_backup;
+-- 表backups
+CREATE TABLE backups (
+      backupID INTEGER PRIMARY KEY AUTO_INCREMENT,
+      path VARCHAR(200) NOT NULL,
+      date TIMESTAMP DEFAULT CURRENT_TIMESTAMP()
+);
+```
+
+## 触发器设计SQL
+
+```sql
+delimiter $
+create trigger crate_default_category after insert
+on users for each row
+begin
+insert into categories values(null, '默认', 0, new.userID);
+end$
+delimiter ;
+```
+
+## 数据库用户权限等SQL
+
+```sql
+-- 创建用户
+create user 'userOfDBPH'@'localhost' identified by '123';
+grant select, insert, update, delete on DBPH.* to 'userOfDBPH'@'localhost';
+
+create user 'adminOfDBPH'@'localhost' identified by '123';
+grant all on DBPH.* to 'adminOfDBPH'@'localhost';
+grant all on DBPH_backup.* to 'adminOfDBPH'@'localhost';
+
+flush privileges;
+-- 更改admin隔离级别
+set session transaction isolation level serializable;
+set @@autocommit=0;
+-- 查看隔离级别
+select @@transaction_isolation;
+-- 使用
+start transaction;
+-- ...
+commit;
 ```
 
 
